@@ -127,31 +127,20 @@
                 /* justify-content: center; */
             }
 
-            #main-navbar {
-                display: flex;
-                align-items: center;
-                justify-content: flex-start;
-                gap: 1rem;
-            }
-
             /* Navbar Styles */
             #navigation {
                 background-color: #333;
-                /* Dark background */
                 padding: 10px 20px;
                 position: sticky;
                 top: 0;
                 z-index: 1000;
-                /* Ensure it stays on top of other content */
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-                /* Subtle shadow */
             }
 
             #main-navbar {
                 list-style: none;
                 display: flex;
                 gap: 20px;
-                /* Space between menu items */
                 margin: 0;
                 padding: 0;
             }
@@ -169,34 +158,40 @@
 
             #main-navbar a:hover {
                 color: #ff6347;
-                /* Highlight color on hover */
+            }
+
+            /* Hamburger Menu Styles */
+            .hamburger-toggle {
+                display: none;
+            }
+
+            .hamburger-icon {
+                display: none;
+                font-size: 1.5rem;
+                color: white;
+                cursor: pointer;
             }
 
             /* Responsive Design */
             @media (max-width: 768px) {
+                .hamburger-icon {
+                    display: block;
+                }
+
                 #main-navbar {
                     flex-direction: column;
-                    /* Stack items vertically on small screens */
                     gap: 10px;
                     display: none;
-                    /* Hide by default on small screens */
+                    position: absolute;
+                    top: 50px;
+                    left: 0;
+                    width: 100%;
+                    background-color: #333;
+                    padding: 10px 0;
                 }
 
-                #main-navbar.active {
+                #hamburger-toggle:checked~#main-navbar {
                     display: flex;
-                    /* Show when active (e.g., hamburger menu toggle) */
-                }
-            }
-
-            /* Responsive Design */
-            @media (max-width: 768px) {
-                .navbar-menu {
-                    display: none;
-                    /* Hide menu on small screens */
-                }
-
-                .navbar-logo {
-                    font-size: 1.2rem;
                 }
             }
 
@@ -221,6 +216,8 @@
     <body>
         <div id="messages"></div>
         <nav id="navigation">
+            <input type="checkbox" id="hamburger-toggle" class="hamburger-toggle">
+            <label for="hamburger-toggle" class="hamburger-icon">&#9776;</label>
             <ul id="main-navbar"></ul>
         </nav>
         <div id="pokemon-details"></div>
@@ -652,6 +649,20 @@
         }
 
         getPokemonData();
+    </script>
+
+    <script>
+        // Get the checkbox and navbar elements
+        const hamburgerToggle = document.getElementById('hamburger-toggle');
+        const mainNavbar = document.getElementById('main-navbar');
+
+        // Close the navbar when the user scrolls
+        window.addEventListener('scroll', () => {
+            if (hamburgerToggle.checked) {
+                hamburgerToggle.checked = false;
+                mainNavbar.style.display = 'none';
+            }
+        });
     </script>
 
 
