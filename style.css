@@ -1,0 +1,192 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Add scroll margin to all elements that are targeted by anchor links */
+:target {
+    scroll-margin-top: 70px;
+    /* Adjust this value to match the height of your navbar */
+}
+
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+#messages {
+    margin-bottom: 20px;
+}
+
+#pokemon-details {
+    border: 1px solid #ddd;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+h2 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+h3 {
+    color: #3498db;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+table {
+    /* min-width: 600px; */
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+thead {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    border-bottom: 2px solid #ccc;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+
+img {
+    max-width: 200px;
+    height: auto;
+    display: block;
+    margin: 10px auto;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 10px;
+}
+
+li {
+    margin-bottom: 5px;
+    padding-left: 20px;
+    position: relative;
+}
+
+#sprites-container {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+}
+
+/* Navbar Styles */
+#navigation {
+    background-color: #333;
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#main-navbar {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+}
+
+#main-navbar li {
+    display: inline-block;
+}
+
+#main-navbar a {
+    text-decoration: none;
+    color: white;
+    font-size: 1rem;
+    transition: color 0.3s ease;
+}
+
+#main-navbar a:hover {
+    color: #ff6347;
+}
+
+/* Hamburger Menu Styles */
+.hamburger-toggle {
+    display: none;
+}
+
+.hamburger-icon {
+    display: none;
+    font-size: 1.5rem;
+    color: white;
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hamburger-icon {
+        display: block;
+    }
+
+    #main-navbar {
+        flex-direction: column;
+        gap: 10px;
+        display: none;
+        position: absolute;
+        top: 50px;
+        left: 0;
+        width: 100%;
+        background-color: #333;
+        padding: 10px 0;
+    }
+
+    #hamburger-toggle:checked~#main-navbar {
+        display: flex;
+    }
+}
+
+@media (max-width: 968px) {
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    #sprites-container {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
