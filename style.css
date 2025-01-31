@@ -11,18 +11,25 @@ html {
 /* Add scroll margin to all elements that are targeted by anchor links */
 :target {
     scroll-margin-top: 70px;
-    /* Adjust this value to match the height of your navbar */
 }
 
 body {
     font-family: sans-serif;
-    margin: 20px;
     background-color: #f4f4f4;
     color: #333;
 }
 
 #messages {
-    margin-bottom: 20px;
+    margin: 20px;
+    padding: 1rem;
+    border: solid 2px;
+    background-color: palegoldenrod;
+}
+
+#messages p {
+    padding-block: 0.25rem;
+    margin: 0;
+
 }
 
 #pokemon-details {
@@ -31,6 +38,8 @@ body {
     background-color: white;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
+    display: none;
+    margin: 20px;
 }
 
 h2 {

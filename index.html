@@ -10,12 +10,15 @@
     </head>
 
     <body>
-        <div id="messages"></div>
+
         <nav id="navigation">
             <input type="checkbox" id="hamburger-toggle" class="hamburger-toggle">
             <label for="hamburger-toggle" class="hamburger-icon">&#9776;</label>
-            <ul id="main-navbar"></ul>
+            <ul id="main-navbar">
+                <li><a href="evolutions.html">View Evolution Chains</a></li>
+            </ul>
         </nav>
+        <div id="messages"></div>
         <div id="pokemon-details"></div>
 
     </body>
@@ -29,6 +32,9 @@
             if (!pokemonName) {
                 displayMessage("Please provide a Pokémon name in the URL (e.g., ?pokemon=pikachu).");
                 return;
+            }
+            else {
+                displayMessage(`Retrieving Pokémon details for ${pokemonName}`);
             }
 
             pokemonName = pokemonName.toLowerCase();
@@ -56,9 +62,13 @@
             }
         }
 
-        function displayMessage(message) {
+        function displayMessage(message, clear = false) {
             const paragraphMessage = document.createElement("p");
             paragraphMessage.textContent = message;
+            if (clear) {
+
+                document.getElementById("messages").innerHTML = "";
+            }
             document.getElementById("messages").appendChild(paragraphMessage);
         }
 
@@ -68,7 +78,7 @@
                     const value = sprites[key];
 
                     if (typeof value === 'string') {
-                        //  URL so create and append the image
+                        //  URL to create and append the image
                         const img = document.createElement('img');
                         img.width = 96;
                         img.height = 96;
@@ -105,7 +115,6 @@
                 }
 
                 const pokemonData = await response.json();
-                // console.log(pokemonData);
                 return pokemonData;
 
             } catch (error) {
@@ -117,6 +126,7 @@
         async function displayPokemonData(pokemonData) {
             const pokemonDetails = document.getElementById('pokemon-details'); // Container for details
             const mainNavbarList = document.getElementById('main-navbar'); // Main navbar
+
             pokemonDetails.innerHTML = ''; // Clear previous content
 
             // Name and Image
@@ -440,12 +450,12 @@
 
                 formsContainer.appendChild(formDiv);
             }
-        }
-
-        getPokemonData();
+            pokemonDetails.style.display = "block";
+            displayMessage(`Retrieved Pokémon details for ${pokemonData.name} from PokéAPI.`, true);
+        }        
     </script>
 
-    <script>
+    <script defer>
         // Get the checkbox and navbar elements
         const hamburgerToggle = document.getElementById('hamburger-toggle');
         const mainNavbar = document.getElementById('main-navbar');
@@ -457,6 +467,9 @@
                 mainNavbar.style.display = 'none';
             }
         });
+
+        // Get Pokémon data
+        getPokemonData();
     </script>
 
 
