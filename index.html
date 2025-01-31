@@ -7,6 +7,22 @@
         <title>Pokemon</title>
 
         <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            /* Add scroll margin to all elements that are targeted by anchor links */
+            :target {
+                scroll-margin-top: 70px;
+                /* Adjust this value to match the height of your navbar */
+            }
+
             body {
                 font-family: sans-serif;
                 margin: 20px;
@@ -116,6 +132,72 @@
                 align-items: center;
                 justify-content: flex-start;
                 gap: 1rem;
+            }
+
+            /* Navbar Styles */
+            #navigation {
+                background-color: #333;
+                /* Dark background */
+                padding: 10px 20px;
+                position: sticky;
+                top: 0;
+                z-index: 1000;
+                /* Ensure it stays on top of other content */
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                /* Subtle shadow */
+            }
+
+            #main-navbar {
+                list-style: none;
+                display: flex;
+                gap: 20px;
+                /* Space between menu items */
+                margin: 0;
+                padding: 0;
+            }
+
+            #main-navbar li {
+                display: inline-block;
+            }
+
+            #main-navbar a {
+                text-decoration: none;
+                color: white;
+                font-size: 1rem;
+                transition: color 0.3s ease;
+            }
+
+            #main-navbar a:hover {
+                color: #ff6347;
+                /* Highlight color on hover */
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                #main-navbar {
+                    flex-direction: column;
+                    /* Stack items vertically on small screens */
+                    gap: 10px;
+                    display: none;
+                    /* Hide by default on small screens */
+                }
+
+                #main-navbar.active {
+                    display: flex;
+                    /* Show when active (e.g., hamburger menu toggle) */
+                }
+            }
+
+            /* Responsive Design */
+            @media (max-width: 768px) {
+                .navbar-menu {
+                    display: none;
+                    /* Hide menu on small screens */
+                }
+
+                .navbar-logo {
+                    font-size: 1.2rem;
+                }
             }
 
             @media (max-width: 968px) {
