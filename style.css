@@ -199,3 +199,17 @@ li {
         flex-wrap: wrap;
     }
 }
+
+h3#moves~ul>li {
+    border: solid 1px #b4b4b4;
+    padding: 1rem;
+    box-shadow: 7px 7px 5px 5px rgba(183, 183, 183, 0.75);
+    margin-block-end: 2rem;
+}
+
+h3#moves~ul {
+    max-width: 90%;
+    /* margin-inline: auto; */
+    border-radius: 0.25rem;
+
+}

@@ -25,6 +25,15 @@
 
     </body>
     <script defer>
+
+        function capitaliseWords(words) {
+            return words
+                .split("-")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(" ");
+        }
+
+
         async function getPokemonData() {
             const messageElement = document.getElementById("messages");
             messageElement.innerHTML = "";
@@ -36,7 +45,7 @@
                 return;
             }
             else {
-                displayMessage(`Retrieving Pokémon details for ${pokemonName}`);
+                displayMessage(`Retrieving Pokémon details for ${capitaliseWords(pokemonName)}`);
             }
 
             pokemonName = pokemonName.toLowerCase();
@@ -85,7 +94,7 @@
                         img.width = 96;
                         img.height = 96;
                         img.src = value;
-                        img.alt = `${pokemonName} ${parentKey ? parentKey + ' ' : ''}${key} sprite`; // Alt text using ternary logic
+                        img.alt = `${capitaliseWords(pokemonName)} ${parentKey ? parentKey + ' ' : ''}${key} sprite`; // Alt text using ternary logic
                         const divImage = document.createElement('div');
                         const paragraphLabel = document.createElement('p');
                         paragraphLabel.textContent = `${parentKey ? parentKey + ' ' : ''}${key}`
@@ -143,7 +152,7 @@
 
             // Content
             const nameHeading = document.createElement('h2');
-            nameHeading.textContent = `Name: ${pokemonData.name}`;
+            nameHeading.textContent = `Name: ${capitaliseWords(pokemonData.name)}`;
             nameHeading.id = "name";
             pokemonDetails.appendChild(nameHeading);
 
@@ -172,7 +181,7 @@
 
             pokemonData.stats.forEach(stat => {
                 const row = statsTable.insertRow();
-                row.insertCell().textContent = stat.stat.name;
+                row.insertCell().textContent = capitaliseWords(stat.stat.name);
                 row.insertCell().textContent = stat.base_stat;
             });
             const statsHeading = document.createElement('h3');
@@ -193,7 +202,7 @@
             const typesList = document.createElement('ul');
             pokemonData.types.forEach(type => {
                 const typeItem = document.createElement('li');
-                typeItem.textContent = type.type.name;
+                typeItem.textContent = capitaliseWords(type.type.name);
                 typesList.appendChild(typeItem);
             });
 
@@ -214,7 +223,7 @@
             const abilitiesList = document.createElement('ul');
             pokemonData.abilities.forEach(ability => {
                 const abilityItem = document.createElement('li');
-                abilityItem.textContent = ability.ability.name;
+                abilityItem.textContent = capitaliseWords(ability.ability.name);
                 abilitiesList.appendChild(abilityItem);
             });
             const abilitiesHeading = document.createElement('h3');
@@ -234,7 +243,7 @@
             const gameList = document.createElement('ul');
             pokemonData.game_indices.forEach(game => {
                 const gameItem = document.createElement('li');
-                gameItem.textContent = game.version.name;
+                gameItem.textContent = capitaliseWords(game.version.name);
                 gameList.appendChild(gameItem);
             })
             const gameHeading = document.createElement('h3');
@@ -254,7 +263,7 @@
             const moveList = document.createElement('ul');
             pokemonData.moves.forEach(move => {
                 const moveItem = document.createElement('li');
-                moveItem.textContent = move.move.name;
+                moveItem.textContent = capitaliseWords(move.move.name);
                 const moveLearnedAt = document.createElement('ul');
                 // table
                 const moveLearnedTable = document.createElement('table');
@@ -269,7 +278,7 @@
                     // tbody
                     const moveLearnedTableBody = moveLearnedTable.createTBody();
                     row = moveLearnedTableBody.insertRow();
-                    row.insertCell().textContent = learned.move_learn_method.name;
+                    row.insertCell().textContent = capitaliseWords(learned.move_learn_method.name);
                     row.insertCell().textContent = learned.level_learned_at;
                     row.insertCell().textContent = learned.version_group.name;
                     moveLearnedAt.appendChild(moveLearnedTable);
@@ -319,7 +328,7 @@
                     const criesAudio = document.createElement('audio');
                     criesAudio.setAttribute('controls', true);
                     criesAudio.setAttribute('crossorigin', 'anonymous');
-                    criesSubHeading.textContent = key;
+                    criesSubHeading.textContent = capitaliseWords(key);
                     criesAudio.src = pokemonData.cries[key];
                     criesDiv.appendChild(criesSubHeading)
                     criesDiv.appendChild(criesAudio);
@@ -350,7 +359,7 @@
             for (const form of pokemonData.forms) {
                 const formDiv = document.createElement('div');
                 const formNameHeading = document.createElement('h4');
-                formNameHeading.textContent = form.name;
+                formNameHeading.textContent = capitaliseWords(form.name);
                 formDiv.appendChild(formNameHeading);
 
                 try {
@@ -363,7 +372,7 @@
                     // Add flat fields to display
                     const fieldsToDisplay = [{
                         name: 'Form Name',
-                        value: formData.form_name
+                        value: capitaliseWords(formData.form_name)
                     },
                     {
                         name: 'Form Order',
@@ -394,7 +403,7 @@
                     },
                     {
                         name: 'Types',
-                        values: formData.types.map(t => t.type.name)
+                        values: formData.types.map(t => capitaliseWords(t.type.name))
                     }
                     ];
 
@@ -453,7 +462,7 @@
                 formsContainer.appendChild(formDiv);
             }
             pokemonDetails.style.display = "block";
-            displayMessage(`Retrieved Pokémon details for ${pokemonData.name} from PokéAPI.`, true);
+            displayMessage(`Retrieved Pokémon details for ${capitaliseWords(pokemonData.name)} from PokéAPI.`, true);
         }        
     </script>
 

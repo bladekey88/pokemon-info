@@ -99,7 +99,7 @@ li {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 40%;
+    max-width: 60%;
     width: 100%;
     text-align: center;
     margin-block: auto;
@@ -111,6 +111,27 @@ h1 {
     margin-bottom: 20px;
     font-size: 24px;
 }
+
+h4 {
+    margin: 0;
+}
+
+a,
+a:visited {
+    text-decoration: none;
+    color: rgb(0, 0, 238);
+}
+
+.searched-pokemon a {
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 0.25rem;
+    text-underline-offset: 0.35rem;
+}
+
 
 /* Search Form Styles */
 #search-form {
@@ -160,19 +181,29 @@ label {
 }
 
 .chain-box {
-    font-size: 18px;
+    font-size: 1.25rem;
     color: #555;
     background-color: #e9ecef;
-    padding: 15px;
-    border-radius: 5px;
+    padding: 1rem;
+    border-radius: 0.25rem;
     border: 1px solid #3a3a3a8d;
     text-align: center;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    grid-template-rows: auto;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+
 }
 
 /* Highlight the searched Pokémon */
-.searched-pokemon {
-    color: darkblue;
-    font-weight: bold;
+.searchedPokemon {
+    color: rgb(173, 35, 35);
+    font-weight: 700;
+    background-color: yellow;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
 }
 
 /* Error Message Styles */
@@ -200,4 +231,15 @@ label {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.evolutionCondition {
+    font-size: 0.75rem;
+    flex-grow: 1;
+}
+
+.evolutionStep {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
 }
