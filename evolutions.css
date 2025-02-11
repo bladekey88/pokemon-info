@@ -4,10 +4,10 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    display: flex;
+    /* display: flex;
     flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
+    align-items: center; */
+    min-height: 100dvh;
 }
 
 li {
@@ -20,7 +20,7 @@ li {
 #navigation {
     width: 100%;
     background-color: #333;
-    padding: 10px 20px;
+    padding-block: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -60,26 +60,32 @@ li {
 
 /* Responsive Navbar */
 @media (max-width: 768px) {
+    #navigation {
+        padding-inline: 0;
+    }
+
     .hamburger-icon {
         display: block;
-        /* Show hamburger icon on small screens */
+        width: 100%;
     }
 
     #main-navbar {
         display: none;
-        /* Hide navbar by default on small screens */
         flex-direction: column;
         background-color: #333;
         position: absolute;
         top: 50px;
-        right: 20px;
-        width: 200px;
+        width: 100%;
         border-radius: 5px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     #main-navbar li {
         text-align: center;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+
     }
 
     #main-navbar a {
@@ -97,12 +103,15 @@ li {
 .container {
     background-color: #fff;
     border-radius: 10px;
+    border: 1px solid lightgray;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     max-width: 60%;
     width: 100%;
     text-align: center;
     margin-block: auto;
+    margin-inline: auto;
+    margin-block-start: 2rem;
 
 }
 
@@ -138,6 +147,7 @@ a:hover {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    text-align: center;
     margin-bottom: 20px;
 }
 
@@ -146,6 +156,7 @@ label {
     color: #555;
     text-align: left;
     margin-bottom: 5px;
+    text-align: center;
 }
 
 #pokemon-input {
@@ -155,6 +166,42 @@ label {
     font-size: 16px;
     width: 100%;
     box-sizing: border-box;
+    text-align: center;
+}
+
+#suggestions {
+    position: relative;
+    border: 1px solid #494949;
+    background-color: rgb(255, 250, 240);
+    max-height: 100dvh;
+    overflow-y: auto;
+    border-radius: 4px;
+    color: rgb(0, 42, 139);
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+}
+
+#suggestions.show {
+    opacity: 1;
+    visibility: visible;
+    display: block;
+
+}
+
+#suggestions div {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+#suggestions div:hover {
+    background-color: #f0f0f0;
+}
+
+.highlight {
+    background-color: yellow;
+    font-weight: bold;
+    color: red;
 }
 
 #search-button {
@@ -197,8 +244,9 @@ label {
 
 }
 
+
 /* Highlight the searched Pokémon */
-.searchedPokemon {
+.searchedPokemon a {
     color: rgb(173, 35, 35);
     font-weight: 700;
     background-color: yellow;

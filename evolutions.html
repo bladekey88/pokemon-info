@@ -11,7 +11,6 @@
     </head>
 
     <body>
-
         <nav id="navigation">
             <input type="checkbox" id="hamburger-toggle" class="hamburger-toggle">
             <label for="hamburger-toggle" class="hamburger-icon">&#9776;</label>
@@ -23,8 +22,9 @@
         <div class="container">
             <h1>Pokémon Evolution Chain</h1>
             <form id="search-form">
-                <label for="pokemon-input">Enter Pokémon Name:</label>
+                <label for="pokemon-input">Enter Pokémon Name</label>
                 <input type="text" id="pokemon-input" placeholder="e.g., Pikachu" required>
+                <div id="suggestions"></div>
                 <button type="submit" id="search-button">Search</button>
             </form>
             <div id="evolution-chain">

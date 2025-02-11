@@ -62,12 +62,12 @@ async function getEvolutionChain(pokemonName) {
 // Recursive function to build evolution chains
 async function buildEvolutionChains(chain, searchedPokemon) {
     let currentStage = chain.species.name;
-    let currentStageSpan = `<span class="pokemon">${capitaliseWords(currentStage)}</span>`;
+    let currentStageSpan = `<span class="pokemon"><a target="_blank" href=".?pokemon=${currentStage}">${capitaliseWords(currentStage)}</a></span>`;
     let evolutions = chain.evolves_to;
 
     // Highlight the searched Pokémon with a <span> and class
     if (currentStage === searchedPokemon.trim()) {
-        currentStageSpan = `<span class='searchedPokemon'>${capitaliseWords(currentStage)}</span>`;
+        currentStageSpan = `<span class='searchedPokemon'><a href=".?${currentStage}" target="_blank">${capitaliseWords(currentStage)}</a></span>`;
     }
 
     // If there are no further evolutions, return the current stage as a single chain
@@ -75,7 +75,7 @@ async function buildEvolutionChains(chain, searchedPokemon) {
         return [currentStageSpan]
     }
 
-    // If there are multiple evolutions, handle branching
+    // If there are evolutions, we run function recursively to get any further evolutions
     let chains = [];
     for (let evolution of evolutions) {
         let subChains = await buildEvolutionChains(evolution, searchedPokemon);
@@ -194,7 +194,6 @@ async function fetchLocationData(url) {
 function extractGenerationNumber(generationName) {
     // Example: "generation-i" -> "I", "generation-iii" -> "III"
     const romanNumeral = generationName.replace("generation-", "").toUpperCase();
-    console.log(romanNumeral)
     return `Generation ${romanNumeral}`;
 }
 
@@ -220,9 +219,78 @@ function displayError(message) {
     evolutionChainDiv.innerHTML = `<p class="error">${message}</p>`;
 }
 
+// Function to enable search suggestions of pokemon names
+async function enableSearchSuggestion() {
+    const searchInput = document.getElementById('pokemon-input');
+    const suggestionsDiv = document.getElementById('suggestions');
+    const minSearchTermLength = 2;
+    let jsonData = [];
+    let pokemonData = []
+
+
+    const jsonFile = "pokemon-list.json";
+    try {
+        const response = await fetch("./" + jsonFile);
+        jsonData = await (response.json());
+        if (jsonData) {
+            pokemonData = jsonData["results"];
+        }
+    }
+    catch (error) {
+        console.error(error);
+        return;
+    }
+
+    searchInput.addEventListener('input', () => {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        suggestionsDiv.innerHTML = '';
+
+        if (searchTerm.length >= minSearchTermLength && jsonData.results.length > 0) {
+            const filteredData = jsonData.results.filter(item => {
+                return item.name.toLowerCase().includes(searchTerm);
+            });
+
+            if (filteredData.length > 0) {
+                filteredData.forEach(item => {
+                    const suggestionElement = document.createElement('div');
+
+                    // Highlight the search term
+                    const suggestionText = item.name;
+                    const highlightedText = highlightMatch(suggestionText, searchTerm);
+
+                    suggestionElement.innerHTML = highlightedText;
+
+                    suggestionElement.addEventListener('click', () => {
+                        // Use original name for the input field rather than html
+                        searchInput.value = item.name;
+                        suggestionsDiv.classList.remove('show');
+                    });
+                    suggestionsDiv.appendChild(suggestionElement);
+                });
+                suggestionsDiv.classList.add('show');
+                // suggestionsDiv.style.display = 'block';
+            } else {
+                // suggestionsDiv.style.display = 'none';
+                suggestionsDiv.classList.remove('show');
+            }
+        } else {
+            // suggestionsDiv.style.display = 'none';
+            suggestionsDiv.classList.remove('show');
+        }
+    });
+}
+
+function highlightMatch(text, searchTerm) {
+    if (!searchTerm) return text; // Handle empty search term
+
+    const regex = new RegExp(searchTerm, 'gi'); // Case-insensitive, global match
+    return text.replace(regex, '<span class="highlight">$&</span>'); // Replace with highlighted span
+}
+
 // Main function to fetch and display the evolution chain
 async function main(pokemonName) {
     showLoader(); // Show the loader before fetching data
+    enableSearchSuggestion();
     try {
         const evolutionChainData = await getEvolutionChain(pokemonName);
         displayEvolutionChains(evolutionChainData.chain, pokemonName);
@@ -245,5 +313,4 @@ document.getElementById("search-form").addEventListener("submit", (event) => {
     }
 });
 
-// Optional: Run for a default Pokémon on page load
 main("pikachu");
