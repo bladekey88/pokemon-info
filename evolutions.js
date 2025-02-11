@@ -67,7 +67,7 @@ async function buildEvolutionChains(chain, searchedPokemon) {
 
     // Highlight the searched Pokémon with a <span> and class
     if (currentStage === searchedPokemon.trim()) {
-        currentStageSpan = `<span class='searchedPokemon'><a href=".?${currentStage}" target="_blank">${capitaliseWords(currentStage)}</a></span>`;
+        currentStageSpan = `<span class='searchedPokemon'><a href=".?pokemon=${currentStage}" target="_blank">${capitaliseWords(currentStage)}</a></span>`;
     }
 
     // If there are no further evolutions, return the current stage as a single chain
