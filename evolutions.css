@@ -228,21 +228,20 @@ label {
 }
 
 .chain-box {
-    font-size: 1.25rem;
+    font-size: 1rem;
     color: #555;
     background-color: #e9ecef;
-    padding: 1rem;
+    padding: 0.5rem;
     border-radius: 0.25rem;
     border: 1px solid #3a3a3a8d;
     text-align: center;
-    display: grid;
-    grid-template-columns: auto auto auto auto auto;
-    grid-template-rows: auto;
+    display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-around;
     gap: 1rem;
-
+    flex-direction: column;
 }
+
 
 
 /* Highlight the searched Pokémon */
@@ -290,4 +289,22 @@ label {
     display: flex;
     flex-direction: column;
     flex-wrap: wrap;
+}
+
+/* Responsiveness and screen size overrides */
+@media screen and (min-width: 968px) {
+    .chain-box {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+}
+
+@media (width < 968px) {
+
+    .evolutionArrow {
+        rotate: 90deg;
+    }
 }

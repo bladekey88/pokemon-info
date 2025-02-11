@@ -85,12 +85,12 @@ async function buildEvolutionChains(chain, searchedPokemon) {
             for (let detail of evolution.evolution_details) {
                 let evolutionConditions = await getEvolutionConditions(detail);
                 for (let subChain of subChains) {
-                    chains.push(`${currentStageSpan}<div class="evolutionStep"><span class="evolutionCondition">${evolutionConditions}</span><span class="evolution-arrow">→</span></div>${capitaliseWords(subChain)}`);
+                    chains.push(`${currentStageSpan}<div class="evolutionStep"><span class="evolutionCondition">${evolutionConditions}</span><span class="evolutionArrow">→</span></div>${capitaliseWords(subChain)}`);
                 }
             }
         } else { // Handle cases where there are no evolution details
             for (let subChain of subChains) {
-                chains.push(`${currentStageSpan}<div class="evolutionStep"><span class="evolution-arrow">→</span></div>${capitaliseWords(subChain)}`); // No conditions
+                chains.push(`${currentStageSpan}<div class="evolutionStep"><span class="evolutionArrow">→</span></div>${capitaliseWords(subChain)}`); // No conditions
             }
         }
     }
