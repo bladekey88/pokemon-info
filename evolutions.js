@@ -268,13 +268,16 @@ async function enableSearchSuggestion() {
                     suggestionsDiv.appendChild(suggestionElement);
                 });
                 suggestionsDiv.classList.add('show');
-                // suggestionsDiv.style.display = 'block';
             } else {
-                // suggestionsDiv.style.display = 'none';
                 suggestionsDiv.classList.remove('show');
             }
         } else {
-            // suggestionsDiv.style.display = 'none';
+            suggestionsDiv.classList.remove('show');
+        }
+    });
+
+    document.addEventListener('click', (event) => {
+        if (!searchInput.contains(event.target) && !suggestionsDiv.contains(event.target)) {
             suggestionsDiv.classList.remove('show');
         }
     });
@@ -283,7 +286,7 @@ async function enableSearchSuggestion() {
 function highlightMatch(text, searchTerm) {
     if (!searchTerm) return text; // Handle empty search term
 
-    const regex = new RegExp(searchTerm, 'gi'); // Case-insensitive, global match
+    const regex = new RegExp(searchTerm, 'gi');
     return text.replace(regex, '<span class="highlight">$&</span>'); // Replace with highlighted span
 }
 
@@ -298,7 +301,7 @@ async function main(pokemonName) {
         displayError("Pokémon not found. Please check the name and try again!");
         console.error(error);
     } finally {
-        hideLoader(); // Hide the loader after fetching data (whether successful or not)
+        hideLoader();
     }
 }
 
