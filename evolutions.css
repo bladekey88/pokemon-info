@@ -318,3 +318,12 @@ label {
         rotate: 90deg;
     }
 }
+
+.alert {
+    border: 1px solid darkred;
+    background-color: honeydew;
+    color: black;
+    font-weight: 500;
+    font-size: 1.25rem;
+    padding: 1rem;
+}
