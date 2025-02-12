@@ -470,14 +470,15 @@
         // Get the checkbox and navbar elements
         const hamburgerToggle = document.getElementById('hamburger-toggle');
         const mainNavbar = document.getElementById('main-navbar');
+        const mainNavbarOriginalDisplay = mainNavbar.style.display;
 
-        // Close the navbar when the user scrolls
-        window.addEventListener('scroll', () => {
-            if (hamburgerToggle.checked) {
-                hamburgerToggle.checked = false;
-                mainNavbar.style.display = 'none';
-            }
-        });
+        // // Close the navbar when the user scrolls
+        // window.addEventListener('scroll', () => {
+        //     if (hamburgerToggle.checked) {
+        //         hamburgerToggle.checked = false;
+        //         mainNavbar.style.display = mainNavbarOriginalDisplay;
+        //     }
+        // });
 
         // Get Pokémon data
         getPokemonData();
