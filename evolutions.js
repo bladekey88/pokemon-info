@@ -62,12 +62,27 @@ async function getEvolutionChain(pokemonName) {
 // Recursive function to build evolution chains
 async function buildEvolutionChains(chain, searchedPokemon) {
     let currentStage = chain.species.name;
-    let currentStageSpan = `<span class="pokemon"><a target="_blank" href=".?pokemon=${currentStage}">${capitaliseWords(currentStage)}</a></span>`;
     let evolutions = chain.evolves_to;
+    let pokemonId = "#" + String(chain.species.url.split("/").reverse().filter(validString => validString)[0]).padStart(4, 0);
+
+    let currentStageSpan = `
+    <span class="pokemon">
+    <a target="_blank" href=".?pokemon=${currentStage}">
+    ${capitaliseWords(currentStage)}     
+    </a>
+    <span class="pokemonid">${pokemonId}</span>
+    </span>`;
+
 
     // Highlight the searched Pokémon with a <span> and class
     if (currentStage === searchedPokemon.trim()) {
-        currentStageSpan = `<span class='searchedPokemon'><a href=".?pokemon=${currentStage}" target="_blank">${capitaliseWords(currentStage)}</a></span>`;
+        currentStageSpan = `
+        <span class='pokemon searchedPokemon'>
+            <a href=".?pokemon=${currentStage}" target="_blank">
+            ${capitaliseWords(currentStage)}
+            </a>
+            <span class="pokemonid">${pokemonId}</span>
+            </span>`;
     }
 
     // If there are no further evolutions, return the current stage as a single chain
@@ -296,6 +311,7 @@ async function main(pokemonName) {
     enableSearchSuggestion();
     try {
         const evolutionChainData = await getEvolutionChain(pokemonName);
+        console.log(evolutionChainData);
         displayEvolutionChains(evolutionChainData.chain, pokemonName);
     } catch (error) {
         displayError("Pokémon not found. Please check the name and try again!");

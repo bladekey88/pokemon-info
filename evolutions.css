@@ -242,15 +242,13 @@ label {
     flex-direction: column;
 }
 
-
-
 /* Highlight the searched Pokémon */
 .searchedPokemon a {
     color: rgb(173, 35, 35);
     font-weight: 700;
+    border-radius: 0.25rem;
     background-color: yellow;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
+    padding-inline: 0.5rem;
 }
 
 /* Error Message Styles */
@@ -278,6 +276,18 @@ label {
     100% {
         transform: rotate(360deg);
     }
+}
+
+.pokemon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.pokemon .pokemonid {
+    font-size: 0.75rem;
 }
 
 .evolutionCondition {
