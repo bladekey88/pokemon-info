@@ -9,13 +9,15 @@ function capitaliseWords(words) {
 // Function to show the loader
 function showLoader() {
     const evolutionChainDiv = document.getElementById("evolution-chain");
-    evolutionChainDiv.innerHTML = `<div class="loader"></div>`;
+    const loaderDiv = document.createElement("div");
+    loaderDiv.classList = "loader";
+    evolutionChainDiv.insertAdjacentElement("afterend", loaderDiv);
 }
 
 // Function to hide the loader
 function hideLoader() {
     const evolutionChainDiv = document.getElementById("evolution-chain");
-    const loader = evolutionChainDiv.querySelector(".loader");
+    const loader = evolutionChainDiv.parentElement.querySelector(".loader");
     if (loader) {
         loader.remove();
     }
@@ -242,7 +244,7 @@ async function enableSearchSuggestion() {
     let jsonData = [];
     let pokemonData = []
 
-
+    // Process json
     const jsonFile = "pokemon-list.json";
     try {
         const response = await fetch("./" + jsonFile);
@@ -311,8 +313,7 @@ async function main(pokemonName) {
     enableSearchSuggestion();
     try {
         const evolutionChainData = await getEvolutionChain(pokemonName);
-        console.log(evolutionChainData);
-        displayEvolutionChains(evolutionChainData.chain, pokemonName);
+        await displayEvolutionChains(evolutionChainData.chain, pokemonName);
     } catch (error) {
         displayError("Pokémon not found. Please check the name and try again!");
         console.error(error);
