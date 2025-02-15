@@ -34,6 +34,17 @@
         }
 
 
+        function checkLocalStorage(pokemonName) {
+            const data = localStorage.getItem("pokemon");
+            if (!data) return false;
+
+            pokemonJson = JSON.parse(atob(data))
+            if (pokemonJson.name == pokemonName) { return pokemonJson }
+            else {
+                return false;
+            }
+        }
+
         async function getPokemonData() {
             const messageElement = document.getElementById("messages");
             messageElement.innerHTML = "";
@@ -51,6 +62,27 @@
             pokemonName = pokemonName.toLowerCase();
 
             try {
+                // Check localStorage to see if the pokemon was queried.
+                localStoragePokemon = checkLocalStorage(pokemonName)
+                if (localStoragePokemon) {
+                    displayPokemonData(localStoragePokemon);
+                    return
+                }
+
+                //Set localStorage so that know when last queried
+                if (localStorage.getItem("lq")) {
+                    const FLOOD_CONTROL = 5000;
+                    let currentDateTime = new Date();
+                    let previousDateTime = new Date(localStorage.getItem("lq"));
+                    if ((currentDateTime - previousDateTime) < FLOOD_CONTROL) {
+                        let timeRemaining = (FLOOD_CONTROL - (currentDateTime - previousDateTime)) / 1000;
+                        throw new Error(`Error: There must be a gap of ${FLOOD_CONTROL / 1000} seconds between each query (${timeRemaining} seconds remaining).`);
+                    }
+                }
+
+                // Set localstorage time
+                localStorage.setItem("lq", new Date());
+
                 const url = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
                 const response = await fetch(url);
 
@@ -64,6 +96,9 @@
                 }
 
                 const pokemonData = await response.json();
+
+                // Set to localStorage so we're not constantly querying the API
+                localStorage.setItem("pokemon", btoa(JSON.stringify(pokemonData)));
                 console.log(pokemonData); // Log, but remove when not neeeded.
                 await displayPokemonData(pokemonData)
 
@@ -455,12 +490,81 @@
 
                 } catch (error) {
                     const errorElement = document.createElement('p');
-                    errorElement.textContent = `Error loading form: ${error.message}`;
+                    errorElement.textContent = `Error loading Pokémon Form Data: ${error.message}`;
                     formDiv.appendChild(errorElement);
                 }
 
                 formsContainer.appendChild(formDiv);
             }
+
+            // Varieties 
+            // In order to get varieties, first have to get species data.
+            const varietiesNavbarLink = document.createElement('a');
+            const varietiesNavbarListItem = document.createElement('li');
+            varietiesNavbarLink.href = "#varieties";
+            varietiesNavbarLink.textContent = "Varieties";
+            varietiesNavbarListItem.appendChild(varietiesNavbarLink);
+            mainNavbarList.appendChild(varietiesNavbarListItem);
+
+            const varietiesHeading = document.createElement('h3');
+            varietiesHeading.textContent = "Pokémon Varieties";
+            varietiesHeading.id = "varieties";
+            const varietiesContainer = document.createElement('div');
+
+            pokemonDetails.appendChild(varietiesHeading);
+            pokemonDetails.appendChild(varietiesContainer)
+
+            try {
+                const speciesData = await getPokemonSupplementaryData(pokemonData.species.url);
+                const varietiesData = speciesData.varieties;
+
+                for (let varieties of varietiesData) {
+                    const varietiesDiv = document.createElement('div');
+                    const varietiesNameHeading = document.createElement('h4');
+                    varietiesNameHeading.textContent = capitaliseWords(varieties.pokemon.name)
+                    varietiesDiv.appendChild(varietiesNameHeading)
+
+                    // Create Table
+                    const varietiesTable = document.createElement("table");
+                    varietiesTable.style.maxWidth = "90%"
+                    const vTBody = varietiesTable.createTBody();
+                    const currentUrl = window.location.pathname;
+                    const varietiesFieldsToDisplay = [{
+                        name: 'Variety Name',
+                        value: capitaliseWords(varieties.pokemon.name)
+                    },
+                    {
+                        name: 'Is Default',
+                        value: varieties.is_default ? 'Yes' : 'No'
+                    },
+                    {
+                        name: 'View Pokémon Variety Data',
+                        value: (pokemonData.name != varieties.pokemon.name) ? `<a target='_blank' href='${currentUrl}?pokemon=${varieties.pokemon.name}'>Click here</a>` : "Current Pokemon"
+                    }]
+
+                    // Add the data
+                    varietiesFieldsToDisplay.forEach(field => {
+                        const row = vTBody.insertRow();
+                        headingCell = row.insertCell().textContent = field.name;
+                        dataCell = row.insertCell().innerHTML = field.value || "N/A"
+                        dataCell.width = "50%";
+                        headingCell.width = "50%";
+                    })
+
+                    varietiesDiv.appendChild(varietiesTable);
+
+                    varietiesContainer.appendChild(varietiesDiv);
+                }
+
+            }
+            catch (error) {
+                const errorElement = document.createElement('p');
+                errorElement.textContent = `Error loading Pokémon Varieties Data: ${error.message}`;
+                varietiesContainer.appendChild(errorElement);
+            }
+
+
+            // Finally update overall page
             pokemonDetails.style.display = "block";
             displayMessage(`Retrieved Pokémon details for ${capitaliseWords(pokemonData.name)} from PokéAPI.`, true);
         }        
@@ -471,14 +575,6 @@
         const hamburgerToggle = document.getElementById('hamburger-toggle');
         const mainNavbar = document.getElementById('main-navbar');
         const mainNavbarOriginalDisplay = mainNavbar.style.display;
-
-        // // Close the navbar when the user scrolls
-        // window.addEventListener('scroll', () => {
-        //     if (hamburgerToggle.checked) {
-        //         hamburgerToggle.checked = false;
-        //         mainNavbar.style.display = mainNavbarOriginalDisplay;
-        //     }
-        // });
 
         // Get Pokémon data
         getPokemonData();
