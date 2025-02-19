@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pokemon Info V2</title>
+        </body>
+        <link rel="stylesheet" href="evolutions.css">
+    </head>
+
+    <body>
+        <nav id="navigation">
+            <input type="checkbox" id="hamburger-toggle" class="hamburger-toggle">
+            <label for="hamburger-toggle" class="hamburger-icon">&#9776;</label>
+            <ul id="main-navbar">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="evolutions.html">View Evolution Chains</a></li>
+
+            </ul>
+        </nav>
+        <main>
+            <div class="container">
+                <form id="search-form">
+                    <label for="pokemon-input">Enter Pokémon Name</label>
+                    <input type="text" id="pokemon-input" placeholder="e.g., Pikachu" required>
+                    <div id="suggestions"></div>
+                    <button type="submit" id="search-button">Search</button>
+                </form>
+                <div id="pokemon-details">
+                </div>
+
+            </div>
+            <div class="grid-auto-fill">
+            </div>
+        </main>
+
+        <script src="pokemon-info.js"></script>
+    </body>
+
+
+</html>
