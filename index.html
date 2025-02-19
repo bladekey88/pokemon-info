@@ -23,562 +23,562 @@
         <div id="messages"></div>
         <div id="pokemon-details"></div>
 
-    </body>
-    <script defer>
+        <script defer>
 
-        function capitaliseWords(words) {
-            return words
-                .split("-")
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(" ");
-        }
-
-
-        function checkLocalStorage(pokemonName) {
-            const data = localStorage.getItem("pokemon");
-            if (!data) return false;
-
-            pokemonJson = JSON.parse(atob(data))
-            if (pokemonJson.name == pokemonName) { return pokemonJson }
-            else {
-                return false;
-            }
-        }
-
-        async function getPokemonData() {
-            const messageElement = document.getElementById("messages");
-            messageElement.innerHTML = "";
-
-            let pokemonName = new URLSearchParams(window.location.search).get("pokemon");
-
-            if (!pokemonName) {
-                displayMessage("Please provide a Pokémon name in the URL (e.g., ?pokemon=pikachu).");
-                return;
-            }
-            else {
-                displayMessage(`Retrieving Pokémon details for ${capitaliseWords(pokemonName)}`);
+            function capitaliseWords(words) {
+                return words
+                    .split("-")
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(" ");
             }
 
-            pokemonName = pokemonName.toLowerCase();
 
-            try {
-                // Check localStorage to see if the pokemon was queried.
-                localStoragePokemon = checkLocalStorage(pokemonName)
-                if (localStoragePokemon) {
-                    displayPokemonData(localStoragePokemon);
-                    return
-                }
+            function checkLocalStorage(pokemonName) {
+                const data = localStorage.getItem("pokemon");
+                if (!data) return false;
 
-                //Set localStorage so that know when last queried
-                if (localStorage.getItem("lq")) {
-                    const FLOOD_CONTROL = 5000;
-                    let currentDateTime = new Date();
-                    let previousDateTime = new Date(localStorage.getItem("lq"));
-                    if ((currentDateTime - previousDateTime) < FLOOD_CONTROL) {
-                        let timeRemaining = (FLOOD_CONTROL - (currentDateTime - previousDateTime)) / 1000;
-                        throw new Error(`Error: There must be a gap of ${FLOOD_CONTROL / 1000} seconds between each query (${timeRemaining} seconds remaining).`);
-                    }
-                }
-
-                // Set localstorage time
-                localStorage.setItem("lq", new Date());
-
-                const url = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error(`Pokémon "${pokemonName}" not found.`);
-                    } else {
-                        const errorText = await response.text();
-                        throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-                    }
-                }
-
-                const pokemonData = await response.json();
-
-                // Set to localStorage so we're not constantly querying the API
-                localStorage.setItem("pokemon", btoa(JSON.stringify(pokemonData)));
-                console.log(pokemonData); // Log, but remove when not neeeded.
-                await displayPokemonData(pokemonData)
-
-            } catch (error) {
-                console.error(error);
-                displayMessage(error.message);
-            }
-        }
-
-        function displayMessage(message, clear = false) {
-            const paragraphMessage = document.createElement("p");
-            paragraphMessage.textContent = message;
-            if (clear) {
-
-                document.getElementById("messages").innerHTML = "";
-            }
-            document.getElementById("messages").appendChild(paragraphMessage);
-        }
-
-        function displaySpritesRecursively(sprites, container, pokemonName, parentKey = null) {
-            for (const key in sprites) {
-                if (sprites.hasOwnProperty(key)) {
-                    const value = sprites[key];
-
-                    if (typeof value === 'string') {
-                        //  URL to create and append the image
-                        const img = document.createElement('img');
-                        img.width = 96;
-                        img.height = 96;
-                        img.src = value;
-                        img.alt = `${capitaliseWords(pokemonName)} ${parentKey ? parentKey + ' ' : ''}${key} sprite`; // Alt text using ternary logic
-                        const divImage = document.createElement('div');
-                        const paragraphLabel = document.createElement('p');
-                        paragraphLabel.textContent = `${parentKey ? parentKey + ' ' : ''}${key}`
-                        divImage.appendChild(img);
-                        divImage.appendChild(paragraphLabel)
-                        container.appendChild(divImage);
-                    } else if (typeof value === 'object' && value !== null) {
-                        // Object so we need to use recursion
-                        console.debug(`Recursing into ${key}...`); // For debugging
-                        displaySpritesRecursively(value, container, pokemonName, key); // Pass the key as parentKey
-                    }
+                pokemonJson = JSON.parse(atob(data))
+                if (pokemonJson.name == pokemonName) { return pokemonJson }
+                else {
+                    return false;
                 }
             }
-        }
 
+            async function getPokemonData() {
+                const messageElement = document.getElementById("messages");
+                messageElement.innerHTML = "";
 
-        async function getPokemonSupplementaryData(url) {
+                let pokemonName = new URLSearchParams(window.location.search).get("pokemon");
 
-            try {
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error(`Data not found at ${url}`);
-                    } else {
-                        const errorText = await response.text();
-                        throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
-                    }
+                if (!pokemonName) {
+                    displayMessage("Please provide a Pokémon name in the URL (e.g., ?pokemon=pikachu).");
+                    return;
+                }
+                else {
+                    displayMessage(`Retrieving Pokémon details for ${capitaliseWords(pokemonName)}`);
                 }
 
-                const pokemonData = await response.json();
-                return pokemonData;
-
-            } catch (error) {
-                console.error(error);
-                displayMessage(error.message);
-            }
-        }
-
-        async function displayPokemonData(pokemonData) {
-            const pokemonDetails = document.getElementById('pokemon-details'); // Container for details
-            const mainNavbarList = document.getElementById('main-navbar'); // Main navbar
-
-            pokemonDetails.innerHTML = ''; // Clear previous content
-
-            // Name and Image
-
-            // Navbar Update
-            const nameNavbarLink = document.createElement('a');
-            const nameNavbarListItem = document.createElement('li');
-            nameNavbarLink.href = "#name";
-            nameNavbarLink.textContent = "Name";
-            nameNavbarListItem.appendChild(nameNavbarLink);
-            mainNavbarList.appendChild(nameNavbarListItem);
-
-            // Content
-            const nameHeading = document.createElement('h2');
-            nameHeading.textContent = `Name: ${capitaliseWords(pokemonData.name)}`;
-            nameHeading.id = "name";
-            pokemonDetails.appendChild(nameHeading);
-
-            // Sprite Stuff
-            const spritesHeading = document.createElement('h3');
-            const spritesContainer = document.createElement('div'); // Container for sprites
-            spritesContainer.id = 'sprites-container';
-            spritesHeading.textContent = "Sprites";
-            displaySpritesRecursively(pokemonData.sprites, spritesContainer, pokemonData.name);
-            pokemonDetails.appendChild(spritesHeading);
-            pokemonDetails.appendChild(spritesContainer);
-
-            //  Stats
-            // Navbar Update
-            const statsNavbarLink = document.createElement('a');
-            const statsNavbarListItem = document.createElement('li');
-            statsNavbarLink.href = "#stats";
-            statsNavbarLink.textContent = "Stats";
-            statsNavbarListItem.appendChild(statsNavbarLink);
-            mainNavbarList.appendChild(statsNavbarListItem);
-
-            const statsTable = document.createElement('table');
-            const statsHeader = statsTable.insertRow();
-            statsHeader.insertCell().textContent = "Stat";
-            statsHeader.insertCell().textContent = "Value";
-
-            pokemonData.stats.forEach(stat => {
-                const row = statsTable.insertRow();
-                row.insertCell().textContent = capitaliseWords(stat.stat.name);
-                row.insertCell().textContent = stat.base_stat;
-            });
-            const statsHeading = document.createElement('h3');
-            statsHeading.textContent = "Stats";
-            statsHeading.id = "stats";
-            pokemonDetails.appendChild(statsHeading);
-            pokemonDetails.appendChild(statsTable);
-
-            // Types
-            // Navbar Update
-            const typesNavbarLink = document.createElement('a');
-            const typesNavbarListItem = document.createElement('li');
-            typesNavbarLink.href = "#types";
-            typesNavbarLink.textContent = "Types";
-            typesNavbarListItem.appendChild(typesNavbarLink);
-            mainNavbarList.appendChild(typesNavbarListItem);
-
-            const typesList = document.createElement('ul');
-            pokemonData.types.forEach(type => {
-                const typeItem = document.createElement('li');
-                typeItem.textContent = capitaliseWords(type.type.name);
-                typesList.appendChild(typeItem);
-            });
-
-            const typesHeading = document.createElement('h3');
-            typesHeading.textContent = "Types";
-            typesHeading.id = "types";
-            pokemonDetails.appendChild(typesHeading);
-            pokemonDetails.appendChild(typesList);
-
-            // Abilities
-            const abilitiesNavbarLink = document.createElement('a');
-            const abilitiesNavbarListItem = document.createElement('li');
-            abilitiesNavbarLink.href = "#abilities";
-            abilitiesNavbarLink.textContent = "Abilities";
-            abilitiesNavbarListItem.appendChild(abilitiesNavbarLink);
-            mainNavbarList.appendChild(abilitiesNavbarListItem);
-
-            const abilitiesList = document.createElement('ul');
-            pokemonData.abilities.forEach(ability => {
-                const abilityItem = document.createElement('li');
-                abilityItem.textContent = capitaliseWords(ability.ability.name);
-                abilitiesList.appendChild(abilityItem);
-            });
-            const abilitiesHeading = document.createElement('h3');
-            abilitiesHeading.textContent = "Abilities";
-            abilitiesHeading.id = "abilities";
-            pokemonDetails.appendChild(abilitiesHeading);
-            pokemonDetails.appendChild(abilitiesList);
-
-            // Game Appearances
-            const gameversionsNavbarLink = document.createElement('a');
-            const gameversionsNavbarListItem = document.createElement('li');
-            gameversionsNavbarLink.href = "#gameversions";
-            gameversionsNavbarLink.textContent = "Game Versions";
-            gameversionsNavbarListItem.appendChild(gameversionsNavbarLink);
-            mainNavbarList.appendChild(gameversionsNavbarListItem);
-
-            const gameList = document.createElement('ul');
-            pokemonData.game_indices.forEach(game => {
-                const gameItem = document.createElement('li');
-                gameItem.textContent = capitaliseWords(game.version.name);
-                gameList.appendChild(gameItem);
-            })
-            const gameHeading = document.createElement('h3');
-            gameHeading.textContent = "Appears in Game Versions";
-            gameHeading.id = "gameversions";
-            pokemonDetails.appendChild(gameHeading);
-            pokemonDetails.appendChild(gameList);
-
-            // Moves
-            const movesNavbarLink = document.createElement('a');
-            const movesNavbarListItem = document.createElement('li');
-            movesNavbarLink.href = "#moves";
-            movesNavbarLink.textContent = "Moves";
-            movesNavbarListItem.appendChild(movesNavbarLink);
-            mainNavbarList.appendChild(movesNavbarListItem);
-
-            const moveList = document.createElement('ul');
-            pokemonData.moves.forEach(move => {
-                const moveItem = document.createElement('li');
-                moveItem.textContent = capitaliseWords(move.move.name);
-                const moveLearnedAt = document.createElement('ul');
-                // table
-                const moveLearnedTable = document.createElement('table');
-                // thead
-                moveLearnedTableHeader = moveLearnedTable.createTHead();
-                moveLearnedTableHeaderRow = moveLearnedTableHeader.insertRow();
-                moveLearnedTableHeaderRow.insertCell().textContent = "Learn Method";
-                moveLearnedTableHeaderRow.insertCell().textContent = "Level Learned";
-                moveLearnedTableHeaderRow.insertCell().textContent = "Applies to Game Versions"
-                move.version_group_details.forEach(learned => {
-
-                    // tbody
-                    const moveLearnedTableBody = moveLearnedTable.createTBody();
-                    row = moveLearnedTableBody.insertRow();
-                    row.insertCell().textContent = capitaliseWords(learned.move_learn_method.name);
-                    row.insertCell().textContent = learned.level_learned_at;
-                    row.insertCell().textContent = learned.version_group.name;
-                    moveLearnedAt.appendChild(moveLearnedTable);
-
-                })
-                moveItem.appendChild(moveLearnedAt);
-                moveList.appendChild(moveItem);
-            })
-            const moveHeading = document.createElement('h3');
-            moveHeading.textContent = "Moves";
-            moveHeading.id = "moves";
-            pokemonDetails.appendChild(moveHeading);
-            pokemonDetails.appendChild(moveList);
-
-            // Base Experience
-            const baseexperienceNavbarLink = document.createElement('a');
-            const baseexperienceNavbarListItem = document.createElement('li');
-            baseexperienceNavbarLink.href = "#baseexperience";
-            baseexperienceNavbarLink.textContent = "Base Experience";
-            baseexperienceNavbarListItem.appendChild(baseexperienceNavbarLink);
-            mainNavbarList.appendChild(baseexperienceNavbarListItem);
-
-            const baseExpHeading = document.createElement('h3');
-            const baseExperienceParagraph = document.createElement('p');
-            baseExpHeading.textContent = "Base Experience"
-            baseExpHeading.id = "baseexperience";
-            baseExperienceParagraph.textContent = pokemonData.base_experience;
-            pokemonDetails.appendChild(baseExpHeading);
-            pokemonDetails.appendChild(baseExperienceParagraph);
-
-            // Cries
-            const criesNavbarLink = document.createElement('a');
-            const criesNavbarListItem = document.createElement('li');
-            criesNavbarLink.href = "#cries";
-            criesNavbarLink.textContent = "Cries";
-            criesNavbarListItem.appendChild(criesNavbarLink);
-            mainNavbarList.appendChild(criesNavbarListItem);
-
-            const criesHeading = document.createElement('h3');
-            criesHeading.textContent = "Pokémon Cries";
-            criesHeading.id = "cries";
-            const criesDiv = document.createElement('div');
-
-            for (key in pokemonData.cries) {
-                if (pokemonData.cries[key]) {
-                    const criesSubHeading = document.createElement('h4');
-                    const criesAudio = document.createElement('audio');
-                    criesAudio.setAttribute('controls', true);
-                    criesAudio.setAttribute('crossorigin', 'anonymous');
-                    criesSubHeading.textContent = capitaliseWords(key);
-                    criesAudio.src = pokemonData.cries[key];
-                    criesDiv.appendChild(criesSubHeading)
-                    criesDiv.appendChild(criesAudio);
-                }
-            }
-            pokemonDetails.appendChild(criesHeading)
-            pokemonDetails.appendChild(criesDiv);
-
-
-            // Forms (complicated due to varieties of the species too)
-            // Seems to be inconsistency in API
-            // Github suggests v3 this may be resolved (will break this)
-            const formsNavbarLink = document.createElement('a');
-            const formsNavbarListItem = document.createElement('li');
-            formsNavbarLink.href = "#forms";
-            formsNavbarLink.textContent = "Forms";
-            formsNavbarListItem.appendChild(formsNavbarLink);
-            mainNavbarList.appendChild(formsNavbarListItem);
-
-            const formsHeading = document.createElement('h3');
-            formsHeading.textContent = "Pokémon Forms";
-            formsHeading.id = "forms";
-            const formsContainer = document.createElement('div');
-
-            pokemonDetails.appendChild(formsHeading);
-            pokemonDetails.appendChild(formsContainer);
-
-            for (const form of pokemonData.forms) {
-                const formDiv = document.createElement('div');
-                const formNameHeading = document.createElement('h4');
-                formNameHeading.textContent = capitaliseWords(form.name);
-                formDiv.appendChild(formNameHeading);
+                pokemonName = pokemonName.toLowerCase();
 
                 try {
-                    const formData = await getPokemonSupplementaryData(form.url);
-
-                    // Create table for form details
-                    const formTable = document.createElement('table');
-                    const tbody = formTable.createTBody();
-
-                    // Add flat fields to display
-                    const fieldsToDisplay = [{
-                        name: 'Form Name',
-                        value: capitaliseWords(formData.form_name)
-                    },
-                    {
-                        name: 'Form Order',
-                        value: formData.form_order
-                    },
-                    {
-                        name: 'Is Battle Only',
-                        value: formData.is_battle_only ? 'Yes' : 'No'
-                    },
-                    {
-                        name: 'Is Default',
-                        value: formData.is_default ? 'Yes' : 'No'
-                    },
-                    {
-                        name: 'Is Mega',
-                        value: formData.is_mega ? 'Yes' : 'No'
-                    },
-                    {
-                        name: 'Version Group',
-                        value: formData.version_group.name
+                    // Check localStorage to see if the pokemon was queried.
+                    localStoragePokemon = checkLocalStorage(pokemonName)
+                    if (localStoragePokemon) {
+                        displayPokemonData(localStoragePokemon);
+                        return
                     }
-                    ];
 
-                    // Add array fields
-                    const arrayFieldsToDisplay = [{
-                        name: 'Form Names',
-                        values: formData.form_names.map(n => `${n.name} (${n.language.name})`)
-                    },
-                    {
-                        name: 'Types',
-                        values: formData.types.map(t => capitaliseWords(t.type.name))
-                    }
-                    ];
-
-                    // Populate the table with fields
-                    fieldsToDisplay.forEach(field => {
-                        const row = tbody.insertRow();
-                        row.insertCell().textContent = field.name;
-                        row.insertCell().textContent = field.value || 'N/A';
-                    });
-
-                    // Populate the table with array fields
-                    arrayFieldsToDisplay.forEach(field => {
-                        if (field.values && field.values.length > 0) {
-                            const row = tbody.insertRow();
-                            row.insertCell().textContent = field.name;
-                            row.insertCell().innerHTML = field.values.join('<br>');
+                    //Set localStorage so that know when last queried
+                    if (localStorage.getItem("lq")) {
+                        const FLOOD_CONTROL = 5000;
+                        let currentDateTime = new Date();
+                        let previousDateTime = new Date(localStorage.getItem("lq"));
+                        if ((currentDateTime - previousDateTime) < FLOOD_CONTROL) {
+                            let timeRemaining = (FLOOD_CONTROL - (currentDateTime - previousDateTime)) / 1000;
+                            throw new Error(`Error: There must be a gap of ${FLOOD_CONTROL / 1000} seconds between each query (${timeRemaining} seconds remaining).`);
                         }
-                    });
-
-                    // Add sprites to the table
-                    if (formData.sprites) {
-                        const spriteRow = tbody.insertRow();
-                        const spriteLabelCell = spriteRow.insertCell();
-                        spriteLabelCell.textContent = 'Sprites';
-                        const spriteCell = spriteRow.insertCell();
-
-                        // Create a container for the sprites
-                        const spriteContainer = document.createElement('div');
-                        spriteContainer.style.display = 'flex';
-                        spriteContainer.style.flexWrap = 'wrap';
-                        spriteContainer.style.gap = '10px';
-
-                        // Add each sprite as an image
-                        for (const key in formData.sprites) {
-                            if (formData.sprites[key] && typeof formData.sprites[key] === 'string') {
-                                const img = document.createElement('img');
-                                img.src = formData.sprites[key];
-                                img.alt = `${formData.form_name} ${key} sprite`;
-                                img.width = 96;
-                                img.height = 96;
-                                spriteContainer.appendChild(img);
-                            }
-                        }
-
-                        spriteCell.appendChild(spriteContainer);
                     }
 
-                    formDiv.appendChild(formTable);
+                    // Set localstorage time
+                    localStorage.setItem("lq", new Date());
+
+                    const url = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error(`Pokémon "${pokemonName}" not found.`);
+                        } else {
+                            const errorText = await response.text();
+                            throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
+                        }
+                    }
+
+                    const pokemonData = await response.json();
+
+                    // Set to localStorage so we're not constantly querying the API
+                    localStorage.setItem("pokemon", btoa(JSON.stringify(pokemonData)));
+                    console.log(pokemonData); // Log, but remove when not neeeded.
+                    await displayPokemonData(pokemonData)
 
                 } catch (error) {
-                    const errorElement = document.createElement('p');
-                    errorElement.textContent = `Error loading Pokémon Form Data: ${error.message}`;
-                    formDiv.appendChild(errorElement);
+                    console.error(error);
+                    displayMessage(error.message);
                 }
-
-                formsContainer.appendChild(formDiv);
             }
 
-            // Varieties 
-            // In order to get varieties, first have to get species data.
-            const varietiesNavbarLink = document.createElement('a');
-            const varietiesNavbarListItem = document.createElement('li');
-            varietiesNavbarLink.href = "#varieties";
-            varietiesNavbarLink.textContent = "Varieties";
-            varietiesNavbarListItem.appendChild(varietiesNavbarLink);
-            mainNavbarList.appendChild(varietiesNavbarListItem);
+            function displayMessage(message, clear = false) {
+                const paragraphMessage = document.createElement("p");
+                paragraphMessage.textContent = message;
+                if (clear) {
 
-            const varietiesHeading = document.createElement('h3');
-            varietiesHeading.textContent = "Pokémon Varieties";
-            varietiesHeading.id = "varieties";
-            const varietiesContainer = document.createElement('div');
+                    document.getElementById("messages").innerHTML = "";
+                }
+                document.getElementById("messages").appendChild(paragraphMessage);
+            }
 
-            pokemonDetails.appendChild(varietiesHeading);
-            pokemonDetails.appendChild(varietiesContainer)
+            function displaySpritesRecursively(sprites, container, pokemonName, parentKey = null) {
+                for (const key in sprites) {
+                    if (sprites.hasOwnProperty(key)) {
+                        const value = sprites[key];
 
-            try {
-                const speciesData = await getPokemonSupplementaryData(pokemonData.species.url);
-                const varietiesData = speciesData.varieties;
+                        if (typeof value === 'string') {
+                            //  URL to create and append the image
+                            const img = document.createElement('img');
+                            img.width = 96;
+                            img.height = 96;
+                            img.src = value;
+                            img.alt = `${capitaliseWords(pokemonName)} ${parentKey ? parentKey + ' ' : ''}${key} sprite`; // Alt text using ternary logic
+                            const divImage = document.createElement('div');
+                            const paragraphLabel = document.createElement('p');
+                            paragraphLabel.textContent = `${parentKey ? parentKey + ' ' : ''}${key}`
+                            divImage.appendChild(img);
+                            divImage.appendChild(paragraphLabel)
+                            container.appendChild(divImage);
+                        } else if (typeof value === 'object' && value !== null) {
+                            // Object so we need to use recursion
+                            console.debug(`Recursing into ${key}...`); // For debugging
+                            displaySpritesRecursively(value, container, pokemonName, key); // Pass the key as parentKey
+                        }
+                    }
+                }
+            }
 
-                for (let varieties of varietiesData) {
-                    const varietiesDiv = document.createElement('div');
-                    const varietiesNameHeading = document.createElement('h4');
-                    varietiesNameHeading.textContent = capitaliseWords(varieties.pokemon.name)
-                    varietiesDiv.appendChild(varietiesNameHeading)
 
-                    // Create Table
-                    const varietiesTable = document.createElement("table");
-                    varietiesTable.style.maxWidth = "90%"
-                    const vTBody = varietiesTable.createTBody();
-                    const currentUrl = window.location.pathname;
-                    const varietiesFieldsToDisplay = [{
-                        name: 'Variety Name',
-                        value: capitaliseWords(varieties.pokemon.name)
-                    },
-                    {
-                        name: 'Is Default',
-                        value: varieties.is_default ? 'Yes' : 'No'
-                    },
-                    {
-                        name: 'View Pokémon Variety Data',
-                        value: (pokemonData.name != varieties.pokemon.name) ? `<a target='_blank' href='${currentUrl}?pokemon=${varieties.pokemon.name}'>Click here</a>` : "Current Pokemon"
-                    }]
+            async function getPokemonSupplementaryData(url) {
 
-                    // Add the data
-                    varietiesFieldsToDisplay.forEach(field => {
-                        const row = vTBody.insertRow();
-                        headingCell = row.insertCell().textContent = field.name;
-                        dataCell = row.insertCell().innerHTML = field.value || "N/A"
-                        dataCell.width = "50%";
-                        headingCell.width = "50%";
+                try {
+                    const response = await fetch(url);
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error(`Data not found at ${url}`);
+                        } else {
+                            const errorText = await response.text();
+                            throw new Error(`Error: ${response.status} - ${errorText || response.statusText}`);
+                        }
+                    }
+
+                    const pokemonData = await response.json();
+                    return pokemonData;
+
+                } catch (error) {
+                    console.error(error);
+                    displayMessage(error.message);
+                }
+            }
+
+            async function displayPokemonData(pokemonData) {
+                const pokemonDetails = document.getElementById('pokemon-details'); // Container for details
+                const mainNavbarList = document.getElementById('main-navbar'); // Main navbar
+
+                pokemonDetails.innerHTML = ''; // Clear previous content
+
+                // Name and Image
+
+                // Navbar Update
+                const nameNavbarLink = document.createElement('a');
+                const nameNavbarListItem = document.createElement('li');
+                nameNavbarLink.href = "#name";
+                nameNavbarLink.textContent = "Name";
+                nameNavbarListItem.appendChild(nameNavbarLink);
+                mainNavbarList.appendChild(nameNavbarListItem);
+
+                // Content
+                const nameHeading = document.createElement('h2');
+                nameHeading.textContent = `Name: ${capitaliseWords(pokemonData.name)}`;
+                nameHeading.id = "name";
+                pokemonDetails.appendChild(nameHeading);
+
+                // Sprite Stuff
+                const spritesHeading = document.createElement('h3');
+                const spritesContainer = document.createElement('div'); // Container for sprites
+                spritesContainer.id = 'sprites-container';
+                spritesHeading.textContent = "Sprites";
+                displaySpritesRecursively(pokemonData.sprites, spritesContainer, pokemonData.name);
+                pokemonDetails.appendChild(spritesHeading);
+                pokemonDetails.appendChild(spritesContainer);
+
+                //  Stats
+                // Navbar Update
+                const statsNavbarLink = document.createElement('a');
+                const statsNavbarListItem = document.createElement('li');
+                statsNavbarLink.href = "#stats";
+                statsNavbarLink.textContent = "Stats";
+                statsNavbarListItem.appendChild(statsNavbarLink);
+                mainNavbarList.appendChild(statsNavbarListItem);
+
+                const statsTable = document.createElement('table');
+                const statsHeader = statsTable.insertRow();
+                statsHeader.insertCell().textContent = "Stat";
+                statsHeader.insertCell().textContent = "Value";
+
+                pokemonData.stats.forEach(stat => {
+                    const row = statsTable.insertRow();
+                    row.insertCell().textContent = capitaliseWords(stat.stat.name);
+                    row.insertCell().textContent = stat.base_stat;
+                });
+                const statsHeading = document.createElement('h3');
+                statsHeading.textContent = "Stats";
+                statsHeading.id = "stats";
+                pokemonDetails.appendChild(statsHeading);
+                pokemonDetails.appendChild(statsTable);
+
+                // Types
+                // Navbar Update
+                const typesNavbarLink = document.createElement('a');
+                const typesNavbarListItem = document.createElement('li');
+                typesNavbarLink.href = "#types";
+                typesNavbarLink.textContent = "Types";
+                typesNavbarListItem.appendChild(typesNavbarLink);
+                mainNavbarList.appendChild(typesNavbarListItem);
+
+                const typesList = document.createElement('ul');
+                pokemonData.types.forEach(type => {
+                    const typeItem = document.createElement('li');
+                    typeItem.textContent = capitaliseWords(type.type.name);
+                    typesList.appendChild(typeItem);
+                });
+
+                const typesHeading = document.createElement('h3');
+                typesHeading.textContent = "Types";
+                typesHeading.id = "types";
+                pokemonDetails.appendChild(typesHeading);
+                pokemonDetails.appendChild(typesList);
+
+                // Abilities
+                const abilitiesNavbarLink = document.createElement('a');
+                const abilitiesNavbarListItem = document.createElement('li');
+                abilitiesNavbarLink.href = "#abilities";
+                abilitiesNavbarLink.textContent = "Abilities";
+                abilitiesNavbarListItem.appendChild(abilitiesNavbarLink);
+                mainNavbarList.appendChild(abilitiesNavbarListItem);
+
+                const abilitiesList = document.createElement('ul');
+                pokemonData.abilities.forEach(ability => {
+                    const abilityItem = document.createElement('li');
+                    abilityItem.textContent = capitaliseWords(ability.ability.name);
+                    abilitiesList.appendChild(abilityItem);
+                });
+                const abilitiesHeading = document.createElement('h3');
+                abilitiesHeading.textContent = "Abilities";
+                abilitiesHeading.id = "abilities";
+                pokemonDetails.appendChild(abilitiesHeading);
+                pokemonDetails.appendChild(abilitiesList);
+
+                // Game Appearances
+                const gameversionsNavbarLink = document.createElement('a');
+                const gameversionsNavbarListItem = document.createElement('li');
+                gameversionsNavbarLink.href = "#gameversions";
+                gameversionsNavbarLink.textContent = "Game Versions";
+                gameversionsNavbarListItem.appendChild(gameversionsNavbarLink);
+                mainNavbarList.appendChild(gameversionsNavbarListItem);
+
+                const gameList = document.createElement('ul');
+                pokemonData.game_indices.forEach(game => {
+                    const gameItem = document.createElement('li');
+                    gameItem.textContent = capitaliseWords(game.version.name);
+                    gameList.appendChild(gameItem);
+                })
+                const gameHeading = document.createElement('h3');
+                gameHeading.textContent = "Appears in Game Versions";
+                gameHeading.id = "gameversions";
+                pokemonDetails.appendChild(gameHeading);
+                pokemonDetails.appendChild(gameList);
+
+                // Moves
+                const movesNavbarLink = document.createElement('a');
+                const movesNavbarListItem = document.createElement('li');
+                movesNavbarLink.href = "#moves";
+                movesNavbarLink.textContent = "Moves";
+                movesNavbarListItem.appendChild(movesNavbarLink);
+                mainNavbarList.appendChild(movesNavbarListItem);
+
+                const moveList = document.createElement('ul');
+                pokemonData.moves.forEach(move => {
+                    const moveItem = document.createElement('li');
+                    moveItem.textContent = capitaliseWords(move.move.name);
+                    const moveLearnedAt = document.createElement('ul');
+                    // table
+                    const moveLearnedTable = document.createElement('table');
+                    // thead
+                    moveLearnedTableHeader = moveLearnedTable.createTHead();
+                    moveLearnedTableHeaderRow = moveLearnedTableHeader.insertRow();
+                    moveLearnedTableHeaderRow.insertCell().textContent = "Learn Method";
+                    moveLearnedTableHeaderRow.insertCell().textContent = "Level Learned";
+                    moveLearnedTableHeaderRow.insertCell().textContent = "Applies to Game Versions"
+                    move.version_group_details.forEach(learned => {
+
+                        // tbody
+                        const moveLearnedTableBody = moveLearnedTable.createTBody();
+                        row = moveLearnedTableBody.insertRow();
+                        row.insertCell().textContent = capitaliseWords(learned.move_learn_method.name);
+                        row.insertCell().textContent = learned.level_learned_at;
+                        row.insertCell().textContent = learned.version_group.name;
+                        moveLearnedAt.appendChild(moveLearnedTable);
+
                     })
+                    moveItem.appendChild(moveLearnedAt);
+                    moveList.appendChild(moveItem);
+                })
+                const moveHeading = document.createElement('h3');
+                moveHeading.textContent = "Moves";
+                moveHeading.id = "moves";
+                pokemonDetails.appendChild(moveHeading);
+                pokemonDetails.appendChild(moveList);
 
-                    varietiesDiv.appendChild(varietiesTable);
+                // Base Experience
+                const baseexperienceNavbarLink = document.createElement('a');
+                const baseexperienceNavbarListItem = document.createElement('li');
+                baseexperienceNavbarLink.href = "#baseexperience";
+                baseexperienceNavbarLink.textContent = "Base Experience";
+                baseexperienceNavbarListItem.appendChild(baseexperienceNavbarLink);
+                mainNavbarList.appendChild(baseexperienceNavbarListItem);
 
-                    varietiesContainer.appendChild(varietiesDiv);
+                const baseExpHeading = document.createElement('h3');
+                const baseExperienceParagraph = document.createElement('p');
+                baseExpHeading.textContent = "Base Experience"
+                baseExpHeading.id = "baseexperience";
+                baseExperienceParagraph.textContent = pokemonData.base_experience;
+                pokemonDetails.appendChild(baseExpHeading);
+                pokemonDetails.appendChild(baseExperienceParagraph);
+
+                // Cries
+                const criesNavbarLink = document.createElement('a');
+                const criesNavbarListItem = document.createElement('li');
+                criesNavbarLink.href = "#cries";
+                criesNavbarLink.textContent = "Cries";
+                criesNavbarListItem.appendChild(criesNavbarLink);
+                mainNavbarList.appendChild(criesNavbarListItem);
+
+                const criesHeading = document.createElement('h3');
+                criesHeading.textContent = "Pokémon Cries";
+                criesHeading.id = "cries";
+                const criesDiv = document.createElement('div');
+
+                for (key in pokemonData.cries) {
+                    if (pokemonData.cries[key]) {
+                        const criesSubHeading = document.createElement('h4');
+                        const criesAudio = document.createElement('audio');
+                        criesAudio.setAttribute('controls', true);
+                        criesAudio.setAttribute('crossorigin', 'anonymous');
+                        criesSubHeading.textContent = capitaliseWords(key);
+                        criesAudio.src = pokemonData.cries[key];
+                        criesDiv.appendChild(criesSubHeading)
+                        criesDiv.appendChild(criesAudio);
+                    }
+                }
+                pokemonDetails.appendChild(criesHeading)
+                pokemonDetails.appendChild(criesDiv);
+
+
+                // Forms (complicated due to varieties of the species too)
+                // Seems to be inconsistency in API
+                // Github suggests v3 this may be resolved (will break this)
+                const formsNavbarLink = document.createElement('a');
+                const formsNavbarListItem = document.createElement('li');
+                formsNavbarLink.href = "#forms";
+                formsNavbarLink.textContent = "Forms";
+                formsNavbarListItem.appendChild(formsNavbarLink);
+                mainNavbarList.appendChild(formsNavbarListItem);
+
+                const formsHeading = document.createElement('h3');
+                formsHeading.textContent = "Pokémon Forms";
+                formsHeading.id = "forms";
+                const formsContainer = document.createElement('div');
+
+                pokemonDetails.appendChild(formsHeading);
+                pokemonDetails.appendChild(formsContainer);
+
+                for (const form of pokemonData.forms) {
+                    const formDiv = document.createElement('div');
+                    const formNameHeading = document.createElement('h4');
+                    formNameHeading.textContent = capitaliseWords(form.name);
+                    formDiv.appendChild(formNameHeading);
+
+                    try {
+                        const formData = await getPokemonSupplementaryData(form.url);
+
+                        // Create table for form details
+                        const formTable = document.createElement('table');
+                        const tbody = formTable.createTBody();
+
+                        // Add flat fields to display
+                        const fieldsToDisplay = [{
+                            name: 'Form Name',
+                            value: capitaliseWords(formData.form_name)
+                        },
+                        {
+                            name: 'Form Order',
+                            value: formData.form_order
+                        },
+                        {
+                            name: 'Is Battle Only',
+                            value: formData.is_battle_only ? 'Yes' : 'No'
+                        },
+                        {
+                            name: 'Is Default',
+                            value: formData.is_default ? 'Yes' : 'No'
+                        },
+                        {
+                            name: 'Is Mega',
+                            value: formData.is_mega ? 'Yes' : 'No'
+                        },
+                        {
+                            name: 'Version Group',
+                            value: formData.version_group.name
+                        }
+                        ];
+
+                        // Add array fields
+                        const arrayFieldsToDisplay = [{
+                            name: 'Form Names',
+                            values: formData.form_names.map(n => `${n.name} (${n.language.name})`)
+                        },
+                        {
+                            name: 'Types',
+                            values: formData.types.map(t => capitaliseWords(t.type.name))
+                        }
+                        ];
+
+                        // Populate the table with fields
+                        fieldsToDisplay.forEach(field => {
+                            const row = tbody.insertRow();
+                            row.insertCell().textContent = field.name;
+                            row.insertCell().textContent = field.value || 'N/A';
+                        });
+
+                        // Populate the table with array fields
+                        arrayFieldsToDisplay.forEach(field => {
+                            if (field.values && field.values.length > 0) {
+                                const row = tbody.insertRow();
+                                row.insertCell().textContent = field.name;
+                                row.insertCell().innerHTML = field.values.join('<br>');
+                            }
+                        });
+
+                        // Add sprites to the table
+                        if (formData.sprites) {
+                            const spriteRow = tbody.insertRow();
+                            const spriteLabelCell = spriteRow.insertCell();
+                            spriteLabelCell.textContent = 'Sprites';
+                            const spriteCell = spriteRow.insertCell();
+
+                            // Create a container for the sprites
+                            const spriteContainer = document.createElement('div');
+                            spriteContainer.style.display = 'flex';
+                            spriteContainer.style.flexWrap = 'wrap';
+                            spriteContainer.style.gap = '10px';
+
+                            // Add each sprite as an image
+                            for (const key in formData.sprites) {
+                                if (formData.sprites[key] && typeof formData.sprites[key] === 'string') {
+                                    const img = document.createElement('img');
+                                    img.src = formData.sprites[key];
+                                    img.alt = `${formData.form_name} ${key} sprite`;
+                                    img.width = 96;
+                                    img.height = 96;
+                                    spriteContainer.appendChild(img);
+                                }
+                            }
+
+                            spriteCell.appendChild(spriteContainer);
+                        }
+
+                        formDiv.appendChild(formTable);
+
+                    } catch (error) {
+                        const errorElement = document.createElement('p');
+                        errorElement.textContent = `Error loading Pokémon Form Data: ${error.message}`;
+                        formDiv.appendChild(errorElement);
+                    }
+
+                    formsContainer.appendChild(formDiv);
                 }
 
-            }
-            catch (error) {
-                const errorElement = document.createElement('p');
-                errorElement.textContent = `Error loading Pokémon Varieties Data: ${error.message}`;
-                varietiesContainer.appendChild(errorElement);
-            }
+                // Varieties 
+                // In order to get varieties, first have to get species data.
+                const varietiesNavbarLink = document.createElement('a');
+                const varietiesNavbarListItem = document.createElement('li');
+                varietiesNavbarLink.href = "#varieties";
+                varietiesNavbarLink.textContent = "Varieties";
+                varietiesNavbarListItem.appendChild(varietiesNavbarLink);
+                mainNavbarList.appendChild(varietiesNavbarListItem);
+
+                const varietiesHeading = document.createElement('h3');
+                varietiesHeading.textContent = "Pokémon Varieties";
+                varietiesHeading.id = "varieties";
+                const varietiesContainer = document.createElement('div');
+
+                pokemonDetails.appendChild(varietiesHeading);
+                pokemonDetails.appendChild(varietiesContainer)
+
+                try {
+                    const speciesData = await getPokemonSupplementaryData(pokemonData.species.url);
+                    const varietiesData = speciesData.varieties;
+
+                    for (let varieties of varietiesData) {
+                        const varietiesDiv = document.createElement('div');
+                        const varietiesNameHeading = document.createElement('h4');
+                        varietiesNameHeading.textContent = capitaliseWords(varieties.pokemon.name)
+                        varietiesDiv.appendChild(varietiesNameHeading)
+
+                        // Create Table
+                        const varietiesTable = document.createElement("table");
+                        varietiesTable.style.maxWidth = "90%"
+                        const vTBody = varietiesTable.createTBody();
+                        const currentUrl = window.location.pathname;
+                        const varietiesFieldsToDisplay = [{
+                            name: 'Variety Name',
+                            value: capitaliseWords(varieties.pokemon.name)
+                        },
+                        {
+                            name: 'Is Default',
+                            value: varieties.is_default ? 'Yes' : 'No'
+                        },
+                        {
+                            name: 'View Pokémon Variety Data',
+                            value: (pokemonData.name != varieties.pokemon.name) ? `<a target='_blank' href='${currentUrl}?pokemon=${varieties.pokemon.name}'>Click here</a>` : "Current Pokemon"
+                        }]
+
+                        // Add the data
+                        varietiesFieldsToDisplay.forEach(field => {
+                            const row = vTBody.insertRow();
+                            headingCell = row.insertCell().textContent = field.name;
+                            dataCell = row.insertCell().innerHTML = field.value || "N/A"
+                            dataCell.width = "50%";
+                            headingCell.width = "50%";
+                        })
+
+                        varietiesDiv.appendChild(varietiesTable);
+
+                        varietiesContainer.appendChild(varietiesDiv);
+                    }
+
+                }
+                catch (error) {
+                    const errorElement = document.createElement('p');
+                    errorElement.textContent = `Error loading Pokémon Varieties Data: ${error.message}`;
+                    varietiesContainer.appendChild(errorElement);
+                }
 
 
-            // Finally update overall page
-            pokemonDetails.style.display = "block";
-            displayMessage(`Retrieved Pokémon details for ${capitaliseWords(pokemonData.name)} from PokéAPI.`, true);
-        }        
-    </script>
+                // Finally update overall page
+                pokemonDetails.style.display = "block";
+                displayMessage(`Retrieved Pokémon details for ${capitaliseWords(pokemonData.name)} from PokéAPI.`, true);
+            }        
+        </script>
 
-    <script defer>
-        // Get the checkbox and navbar elements
-        const hamburgerToggle = document.getElementById('hamburger-toggle');
-        const mainNavbar = document.getElementById('main-navbar');
-        const mainNavbarOriginalDisplay = mainNavbar.style.display;
+        <script defer>
+            // Get the checkbox and navbar elements
+            const hamburgerToggle = document.getElementById('hamburger-toggle');
+            const mainNavbar = document.getElementById('main-navbar');
+            const mainNavbarOriginalDisplay = mainNavbar.style.display;
 
-        // Get Pokémon data
-        getPokemonData();
-    </script>
+            // Get Pokémon data
+            getPokemonData();
+        </script>
 
+    </body>
 
 </html>
