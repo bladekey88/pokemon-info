@@ -623,4 +623,4 @@ function localStorageSize() {
     };
 }
 
-main('cleffa');
+main();
