@@ -180,7 +180,8 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
         let data = await response.json();
 
         // Get species data
-        const speciesResponse = await fetch(`${POKEAPI.SPECIES}/${pokemon}`, { signal });
+
+        const speciesResponse = await fetch(`${data.species.url}`, { signal });
         if (!speciesResponse.ok) throw new Error(`Error fetching Pokémon Species data: Data not found. PokéAPI Reponse Code: ${response.status}`);
         const speciesData = await speciesResponse.json()
         data = Object.assign({}, data, speciesData);
