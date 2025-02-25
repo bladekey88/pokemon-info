@@ -143,7 +143,7 @@ a:hover {
 
 
 /* Search Form Styles */
-#search-form {
+form {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -159,7 +159,7 @@ label {
     text-align: center;
 }
 
-#pokemon-input {
+input[type="text"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -204,8 +204,7 @@ label {
     color: red;
 }
 
-button,
-#search-button {
+button {
     padding: 10px 20px;
     background-color: #3498db;
     color: #fff;
@@ -216,9 +215,20 @@ button,
     transition: background-color 0.3s ease;
 }
 
-button,
-#search-button:hover {
+button:hover {
     background-color: #2980b9;
+}
+
+input:disabled,
+button:disabled,
+button:disabled:hover {
+    filter: grayscale(100%);
+    cursor: not-allowed;
+    transition: none;
+}
+
+button:disabled:hover {
+    background-color: #3498db;
 }
 
 /* Evolution Chain Display */
@@ -330,6 +340,11 @@ button,
     padding: 1rem;
 }
 
+.alert.error {
+    background-color: darkred;
+    color: white;
+}
+
 
 /* pokemon=info */
 
@@ -370,4 +385,83 @@ button,
 
 .entity-item h4 {
     margin-block: 0.5rem;
+}
+
+
+/* STAT PAGE */
+/* Pokemon Table */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-block-end: 1.25rem;
+    outline: solid rgb(158, 158, 158) 1px;
+    border-radius: 0.25rem;
+}
+
+th,
+td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: center;
+}
+
+table th {
+    background-color: #f8ddb8;
+    position: sticky;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.form-items {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-around;
+    border: 2px solid rgb(246, 181, 181);
+    border-radius: 0.5rem;
+}
+
+.form-items div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    text-align: end;
+    padding: 0.25rem;
+    margin-block: 0.1rem;
+
+}
+
+fieldset {
+    border: none
+}
+
+.form-items input {
+    padding: 0.5rem;
+    border-radius: 0.2rem;
+    border: 1px solid #555;
+}
+
+.form-items input:invalid {
+    background-color: darkred;
+    outline: double 3px red;
+    color: white;
+}
+
+/* label:has(~ input:invalid)::after { */
+label:has(~ input:not(:required):invalid)::after {
+    content: "Invalid Value";
+    padding: 0.25rem;
+    margin-inline-start: 1rem;
+    background: darkred;
+    color: white;
+}
+
+label:has(~ input:required:invalid)::after {
+    content: "Please provide a value";
+    padding: 0.25rem;
+    margin-inline-start: 1rem;
+    background: darkred;
+    color: white;
 }

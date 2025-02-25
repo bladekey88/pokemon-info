@@ -1,0 +1,26 @@
+// CONSTANTS
+
+// POKEAPI
+const POKEAPI_BASE_URI = "https://pokeapi.co/api/v2";
+const POKEAPI_POKEMON_URI = `${POKEAPI_BASE_URI}/pokemon`;
+const POKEAPI_POKEMON_FORM_URI = `${POKEAPI_BASE_URI}/pokemon-form`;
+const POKEAPI_POKEMON_SPECIES_URI = `${POKEAPI_BASE_URI}/pokemon-species`;
+
+export const POKEAPI = {
+    BASE: POKEAPI_BASE_URI,
+    POKEMON: POKEAPI_POKEMON_URI,
+    FORMS: POKEAPI_POKEMON_FORM_URI,
+    SPECIES: POKEAPI_POKEMON_SPECIES_URI,
+};
+
+// LOADER
+const LOADER_DEFAULT_LOCATION_DIV_ID = "pokemon-details";
+const LOADER_DIV_ID = "loader";
+const LOADER_TEXT_ID = "loaderText";
+
+export const LOADER = {
+    ANCHOR_DIV: LOADER_DEFAULT_LOCATION_DIV_ID,
+    DIV_ID: LOADER_DIV_ID,
+    TEXT_ID: LOADER_TEXT_ID
+}
+

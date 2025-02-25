@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pokemon Stat Growth</title>
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+        <link rel="stylesheet" href="evolutions.css">
+        <link rel="preconnect" href="https://pokeapi.co">
+    </head>
+
+    <body>
+        <nav id="navigation">
+            <input type="checkbox" id="hamburger-toggle" class="hamburger-toggle">
+            <label for="hamburger-toggle" class="hamburger-icon">&#9776;</label>
+            <ul id="main-navbar">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="evolutions.html">View Evolution Chains</a></li>
+
+            </ul>
+        </nav>
+        <main>
+            <div class="container">
+                <form id="search-form">
+                    <label for="pokemon-input">Enter Pokémon Name</label>
+                    <input type="text" id="pokemon-input" placeholder="e.g., Pikachu" required>
+                    <div id="suggestions"></div>
+                    <button type="submit" id="search-button">Search</button>
+                </form>
+
+                <div id="pokemon-details"></div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Base HP</th>
+                            <th>Base Attack</th>
+                            <th>Base Defense</th>
+                            <th>Base Speed</th>
+                            <th>Base Special Attack</th>
+                            <th>Base Special Defense</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="baseHp"></td>
+                            <td id="baseAttack"></td>
+                            <td id="baseDefense"></td>
+                            <td id="baseSpeed"></td>
+                            <td id="baseSpecialAttack"></td>
+                            <td id="baseSpecialDefense"></td>
+                        </tr>
+                    </tbody>
+                    </thead>
+                </table>
+                <form id="statForm">
+                    <div class="form-items">
+                        <fieldset>
+                            <h3>IVs (Enter values between 0 and 31)</h3>
+                            <div>
+                                <label for="hpIV">HP IV</label>
+                                <input type="number" id="hpIV" name="hpIV" min="0" max="31" value="0">
+                            </div>
+                            <div>
+                                <label for="attackIV">Attack IV</label>
+                                <input type="number" id="attackIV" name="attackIV" min="0" max="31" value="0">
+                            </div>
+                            <div>
+                                <label for="defenseIV">Defense IV</label>
+                                <input type="number" id="defenseIV" name="defenseIV" min="0" max="31" value="0">
+                            </div>
+                            <div>
+                                <label for="spAttackIV">Special Attack IV</label>
+                                <input type="number" id="spAttackIV" name="spAttackIV" min="0" max="31" value="0">
+                            </div>
+                            <div>
+                                <label for="spDefenseIV">Special Defense IV</label>
+                                <input type="number" id="spDefenseIV" name="spDefenseIV" min="0" max="31" value="0">
+                            </div>
+                            <div>
+                                <label for="speedIV">Speed IV</label>
+                                <input type="number" id="speedIV" name="speedIV" min="0" max="31" value="0">
+                            </div>
+                        </fieldset>
+                        <fieldset>
+                            <h3>EVs (Enter values beteen 0 and 255)</h3>
+                            <div>
+                                <label for="hpEV">HP EV</label>
+                                <input type="number" id="hpEV" name="hpEV" min="0" max="255" value="0">
+                            </div>
+                            <div>
+                                <label for="attackEV">Attack EV</label>
+                                <input type="number" id="attackEV" name="attackEV" min="0" max="255" value="0">
+                            </div>
+                            <div>
+                                <label for="defenseEV">Defense EV</label>
+                                <input type="number" id="defenseEV" name="defenseEV" min="0" max="255" value="0">
+                            </div>
+                            <div>
+                                <label for="spAttackEV">Special Attack EV</label>
+                                <input type="number" id="spAttackEV" name="spAttackEV" min="0" max="255" value="0">
+                            </div>
+                            <div>
+                                <label for="spDefenseEV">Special Defense EV</label>
+                                <input type="number" id="spDefenseEV" name="spDefenseEV" min="0" max="255" value="0">
+                            </div>
+                            <div>
+                                <label for="speedEV">Speed EV</label>
+                                <input type="number" id="speedEV" name="speedEV" min="0" max="255" value="0">
+                            </div>
+                            <div>
+                                <label for="totalEV">Total EVs must be no greater than 510</label>
+                                <input type="number" id="totalEV" name="totalEV" min="0" max="510" value="0" readonly
+                                    disabled>
+                            </div>
+                        </fieldset>
+                    </div>
+                    <button type="button" id="calculateStats">Calculate Stats</button>
+                </form>
+            </div>
+            <div class="grid-auto-fill">
+            </div>
+        </main>
+
+        <script defer type="module" src="assets/js/main.js"></script>
+        <script defer type="module" src="stats.js"></script>
+    </body>
+
+
+</html>
