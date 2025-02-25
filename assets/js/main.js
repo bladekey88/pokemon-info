@@ -1,11 +1,11 @@
 // main.js
 import { getBasicPokemonInfo, renderPokemonDataOutput, pokemon, enableSearchSuggestion } from './pokemon.js';
-import { capitaliseWords, showLoader, hideLoader } from './utils.js';
+import { capitaliseWords, showLoader, hideLoader,displayError } from './utils.js';
 
 
 
 async function loadPokemonData(pokemonNameOrId) {
-    showLoader()
+    showLoader();
 
     const pokemonData = await getBasicPokemonInfo(pokemonNameOrId);
 
@@ -14,14 +14,14 @@ async function loadPokemonData(pokemonNameOrId) {
         pokemon.data[pokemonNameOrId] = pokemonData;
 
         // Render the Data
-        renderPokemonDataOutput(pokemonData)
+        renderPokemonDataOutput(pokemonData);
         document.getElementById('statForm').style.display = "block";
 
         // HARDCODE need to change later
         pokemonData.stats.forEach(element => {
             let statName = "base" + capitaliseWords(element.stat.name).replace("-", "");
             document.getElementById(statName).textContent = element.base_stat;
-            document.getElementById('pokemon-details')
+            document.getElementById('pokemon-details');
         });
         const pokemonDetailsDiv = document.getElementById("pokemon-details");
         // Clear anything in the div
@@ -43,18 +43,25 @@ document.getElementById('statForm').style.display = "none";
 
 document.getElementById("search-form").addEventListener("submit", (event) => {
     event.preventDefault();
+
+    // Clear the search suggestions
+    if(document.getElementById('suggestions')) document.getElementById('suggestions').classList.remove('show');
+    
+    // Clear the error Div
+    if(document.getElementById('error')) document.getElementById('error').remove();
+
     const pokemonName = document.getElementById("pokemon-input").value.toLowerCase();
 
     if (pokemonName) {
-        const controller = new AbortController();
-        const signal = controller.signal;
+        // const controller = new AbortController();
+        // const signal = controller.signal;
 
-        // Abort handler 
-        const abortHandler = () => {
-            controller.abort();
-            console.warn("Fetch aborted by user.");
-            updateLoaderText("Fetch aborted.");
-        };
+        // // Abort handler 
+        // const abortHandler = () => {
+        //     controller.abort();
+        //     console.warn("Fetch aborted by user.");
+        //     updateLoaderText("Fetch aborted.");
+        // };
 
 
         loadPokemonData(pokemonName);
