@@ -1,0 +1,28 @@
+{
+  "name": "pokemon",
+  "version": "1.0.0",
+  "description": "Playing around with PokeAPI",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bladekey88/pokemon-info.git"
+  },
+  "keywords": [
+    "pokemon",
+    "pokeapi"
+  ],
+  "author": "Bladekey88 (and the good folks at PokeAPI)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bladekey88/pokemon-info/issues"
+  },
+  "homepage": "https://github.com/bladekey88/pokemon-info#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "eslint": "^9.21.0",
+    "globals": "^16.0.0"
+  }
+}
