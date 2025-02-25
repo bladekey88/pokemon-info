@@ -134,7 +134,7 @@ function parseStatForm() {
         errorDiv.classList = "error-message";
         errorDiv.id = "errorExceedEVSum"
         errorDiv.textContent = "Total EV must not exceed 510. Current value is " + totalEVs;
-        statForm.appendChild(errorDiv);
+        form.appendChild(errorDiv);
         return;
     }
     const pokemonHP = calculateHP(ivs.hp, evs.hp);
