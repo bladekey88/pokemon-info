@@ -1,6 +1,6 @@
 // Propery Stringify of EVS and IVS
 
-const baseStats = {
+let baseStats = {
     hp: document.getElementById('baseHp').textContent,
     attack: document.getElementById('baseAttack').textContent,
     defense: document.getElementById('baseDefense').textContent,
@@ -95,6 +95,16 @@ function parseStatForm() {
     // Clear anything in the div
     while (pokemonDetailsDiv.hasChildNodes()) {
         pokemonDetailsDiv.removeChild(pokemonDetailsDiv.firstChild);
+    }
+
+    // Get Base Data
+    baseStats = {
+        hp: document.getElementById('baseHp').textContent,
+        attack: document.getElementById('baseAttack').textContent,
+        defense: document.getElementById('baseDefense').textContent,
+        "special attack": document.getElementById('baseSpecialAttack').textContent,
+        "special defense": document.getElementById('baseDefense').textContent,
+        speed: document.getElementById('baseSpeed').textContent,
     }
 
     // Parse the data
