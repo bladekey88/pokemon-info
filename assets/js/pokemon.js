@@ -13,7 +13,7 @@ import {
     convertWeight,
     extractGenerationNumber,
     replaceHyphens
-} from './utils.js'
+} from './utils.js';
 
 // Top Level Variables
 let pokemonId = null;
@@ -73,7 +73,7 @@ export async function enableSearchSuggestion() {
     // Close suggestions on blur (focus loss)
     searchInput.addEventListener('blur', function () {
         suggestionsDiv.classList.remove('show');
-    })
+    });
 
     /**
      * Handles input events in the Pokemon search input field.
@@ -96,7 +96,7 @@ export async function enableSearchSuggestion() {
             });
 
             if (filteredData.length > 0) {
-                suggestionsDiv.setAttribute('role', 'listbox')
+                suggestionsDiv.setAttribute('role', 'listbox');
 
                 filteredData.forEach(item => {
 
@@ -160,7 +160,7 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
 
     // Abort if pokemon not provided
     if (!pokemon) return;
-    let pokemonInputType = isNumeric(pokemon) ? `Pokémon ID: ${pokemon}` : `Pokémon: '${capitaliseWords(pokemon)}'`
+    let pokemonInputType = isNumeric(pokemon) ? `Pokémon ID: ${pokemon}` : `Pokémon: '${capitaliseWords(pokemon)}'`;
 
     updateLoaderText(`Retrieving Basic Pokémon Information for ${pokemonInputType}`);
 
@@ -187,14 +187,14 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
             updateLoaderText(`Retrieving Species Data for ${pokemonInputType}`);
             let speciesResponse = await fetch(`${POKEAPI.SPECIES}/${pokemonId}`, { signal });
             if (!speciesResponse.ok) throw new Error(`Error fetching Pokémon Species data for ${pokemonInputType} (ID: ${pokemonId}): Data not found. PokéAPI Reponse Code: ${speciesResponse.status}`);
-            speciesData = await speciesResponse.json()
+            speciesData = await speciesResponse.json();
         }
         catch (error) {
             console.warn(error);
             updateLoaderText(`Retrieving Species Data for ${pokemonInputType}`);
             let speciesResponse = await fetch(`${data.species.url}`, { signal });
             if (!speciesResponse.ok) throw new Error(`Error fetching Pokémon Species data for ${pokemonInputType} (ID: ${pokemonId}): Data not found. PokéAPI Reponse Code: ${speciesResponse.status}`);
-            speciesData = await speciesResponse.json()
+            speciesData = await speciesResponse.json();
             console.info(`Used base pokemon ID ${data.species.url} to retrieve base species detail`);
         }
 
@@ -205,14 +205,14 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
         data = Object.assign({}, speciesData, data);
 
         try {
-            localStorage.setItem(localStorageKey, JSON.stringify(data))
+            localStorage.setItem(localStorageKey, JSON.stringify(data));
         } catch (e) {
             if (e.name == "QuotaExceededError") {
-                console.warn("Local Storage Quota Exceeded. Data will not be stored in Local Storage")
-                console.warn("Recommended to clear Local Storage")
+                console.warn("Local Storage Quota Exceeded. Data will not be stored in Local Storage");
+                console.warn("Recommended to clear Local Storage");
             }
         }
-        return data
+        return data;
     }
     catch (error) {
         if (signal.aborted) {
@@ -227,6 +227,9 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
 }
 
 export async function renderPokemonDataOutput(pokemonData) {
+
+    // 0. DEBUG
+    console.log(pokemonData);
 
     // 1. Check for Grid div. If it doesn't exist abort.
     const gridDiv = document.querySelector('.grid-auto-fill');
@@ -246,6 +249,21 @@ export async function renderPokemonDataOutput(pokemonData) {
                 'has_gender_differences', 'hatch_counter'],
             display: displayBasicDetails,
         },
+         {
+            title: 'Colour',
+            data: pokemonData.color,
+            display: displayColourDetails,
+        },
+        {
+            title: 'Species',
+            data: pokemonData.species,
+            display: displaySpeciesDetails,
+        },
+        {
+            title: 'Generation Species Introduced',
+            data: pokemonData.generation,
+            display: displayGenerationDetails,
+        },
         {
             title: 'Type',
             data: pokemonData.types,
@@ -255,22 +273,27 @@ export async function renderPokemonDataOutput(pokemonData) {
             title: 'Abilities',
             data: pokemonData.abilities,
             display: displayAbilityDetails,
-        },
-        {
-            title: 'Base Stats',
-            data: pokemonData.stats,
-            display: displayStatsDetails,
-        },
+        },       
         {
             title: 'Cries',
             data: pokemonData.cries,
-            display: displayCriesData,
+            display: displayCriesDetails,
+        },
+        {
+            title: 'Egg Group',
+            data: pokemonData.  egg_groups,
+            display: displayEggGroupDetails,
         },
         {
             title: 'Held Items',
             data: pokemonData.held_items,
             display: displayHeldItemDetails,
-        },
+        },   
+         {
+            title: 'Base Stats',
+            data: pokemonData.stats,
+            display: displayStatsDetails,
+        },    
     ];
 
 
@@ -283,7 +306,7 @@ export async function renderPokemonDataOutput(pokemonData) {
     });
 
     function displayBasicDetails(title, data) {
-        const titleNormalised = title.replace(" ", "")
+        const titleNormalised = title.replace(" ", "");
         data.forEach((item) => {
             const dataDiv = createDataItemDiv(`${titleNormalised}-${item}`);
             const value = pokemonData[item];
@@ -315,7 +338,7 @@ export async function renderPokemonDataOutput(pokemonData) {
 
         for (var pastType of pokemonData.past_types) {
             const generationChangeParagraph = document.createElement('p');
-            generationChangeParagraph.textContent = `Type was changed after ${extractGenerationNumber(pastType.generation.name)}`
+            generationChangeParagraph.textContent = `Type was changed after ${extractGenerationNumber(pastType.generation.name)}`;
             dataDiv.appendChild(generationChangeParagraph);
 
             for (let types of pastType.types) {
@@ -352,7 +375,7 @@ export async function renderPokemonDataOutput(pokemonData) {
             abilityDiv.classList = 'entity-item';
 
             const generationChangeParagraph = document.createElement('p');
-            generationChangeParagraph.textContent = `Ability was changed after ${extractGenerationNumber(pastAbility.generation.name)}`
+            generationChangeParagraph.textContent = `Ability was changed after ${extractGenerationNumber(pastAbility.generation.name)}`;
             abilityDiv.appendChild(generationChangeParagraph);
 
             for (let ability of pastAbility.abilities) {
@@ -388,7 +411,7 @@ export async function renderPokemonDataOutput(pokemonData) {
         gridDiv.appendChild(dataDiv);
     }
 
-    function displayCriesData(title, cries) {
+    function displayCriesDetails(title, cries) {
         const dataDiv = createDataItemDiv(title, true);
         for (const cry in cries) {
             if (cries[cry]) {
@@ -405,7 +428,7 @@ export async function renderPokemonDataOutput(pokemonData) {
     }
 
     function displayHeldItemDetails(title, items) {
-        const dataDiv = createDataItemDiv(title);
+        const dataDiv = createDataItemDiv(title,true);
         items.forEach((item) => {
             const rarity = item.version_details[item.version_details.length - 1].rarity;
             const itemDiv = createEntityItem(capitaliseWords(replaceHyphens(item.item.name)), `${String(rarity)}% Chance`);
@@ -413,6 +436,41 @@ export async function renderPokemonDataOutput(pokemonData) {
         });
         gridDiv.appendChild(dataDiv);
 
+    }
+
+    // Colour seems to only have one value, so we can grab it and display it flat
+    function displayColourDetails(title,items) {
+        const dataDiv = createDataItemDiv(title);
+        const colourDiv = createEntityItem(title,capitaliseWords(items.name));
+        dataDiv.appendChild(colourDiv);
+        gridDiv.appendChild(dataDiv);        
+    }
+     
+    function displaySpeciesDetails(title,items) {
+        const dataDiv = createDataItemDiv(title);
+        const generationDiv = createEntityItem(title,capitaliseWords(items.name));
+        dataDiv.appendChild(generationDiv);
+        gridDiv.appendChild(dataDiv);        
+    }
+    
+    function displayGenerationDetails(title,items) {
+        const dataDiv = createDataItemDiv(title);
+        const generationDiv = createEntityItem(title,capitaliseWords(extractGenerationNumber(items.name)));
+        dataDiv.appendChild(generationDiv);
+        gridDiv.appendChild(dataDiv);        
+    }
+
+     function displayEggGroupDetails(title,eggGroups) {        
+        const dataDiv = createDataItemDiv(title,true);
+        let counter = 0;
+        for (const eggGroup of eggGroups) {
+            counter++;
+              const eggGroupDiv = createEntityItem(`${title} ${counter}`, capitaliseWords(eggGroup.name));
+              dataDiv.appendChild(eggGroupDiv);
+        }
+        // const generationDiv = createEntityItem(title,capitaliseWords(extractGenerationNumber(items.name)));
+        // dataDiv.appendChild(generationDiv);
+        gridDiv.appendChild(dataDiv);        
     }
 
     // Utility Functions (Scoped to this function)
@@ -434,13 +492,13 @@ export async function renderPokemonDataOutput(pokemonData) {
         if (item === "weight") return `${convertWeight(value)} kg`;
         if (item === "height") return `${convertHeight(value)} m`;
         if (item === "is_default") return value ? "Default" : "Not Default";
-        if (item === "gender_rate") return `${(1 - (value / 8)) * 100}% Male : ${(value / 8) * 100}% Female`;
+        if (item === "gender_rate") return value === -1 ? "Gender Unknown": `${(1 - value / 8) * 100}% Male : ${(value / 8) * 100}% Female`;
         if (item === "hatch_counter") return (
-            `Generation II, III, and VII ${value * 256} Steps,
-            Generation IV, Brilliant Diamond, Shining Pearl ${value * 255} Steps,
-            Generation V, VI Pearl ${value * 257} Steps,
-            Genearation VIII, IX ${value * 128} Steps`
-        )
+            `Generation II, III, and VII: ${value * 256} Steps,
+            Generation IV, Brilliant Diamond, Shining Pearl: ${value * 255} Steps,
+            Generation V, VI Pearl: ${value * 257} Steps,
+            Genearation VIII, IX: ${value * 128} Steps`
+        );
         return capitaliseWords(String(value), false);
     }
 
