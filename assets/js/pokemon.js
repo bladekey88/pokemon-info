@@ -8,7 +8,6 @@ import {
     checkLocalStorage,
     updateLoaderText,
     displayError,
-    getLocalStorageSize,
     capitaliseWords,
     convertHeight,
     convertWeight,
@@ -18,7 +17,6 @@ import {
 
 // Top Level Variables
 let pokemonId = null;
-let abortHandler;
 const controller = new AbortController();
 const controllerSignal = controller.signal;
 
@@ -49,16 +47,13 @@ export async function enableSearchSuggestion() {
     const suggestionsDiv = document.getElementById('suggestions');
     const minSearchTermLength = 2;
     let jsonData = [];
-    let pokemonData = []
 
     // Process json
     const jsonFile = "pokemon-list.json";
     try {
         const response = await fetch("./" + jsonFile);
         jsonData = await (response.json());
-        if (jsonData) {
-            pokemonData = jsonData["results"];
-        }
+       
     }
     catch (error) {
         console.error(error);
@@ -165,7 +160,7 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
 
     // Abort if pokemon not provided
     if (!pokemon) return;
-    let pokemonInputType = isNumeric(pokemon) ? `Pokémon ID: ${pokemon}` : `Pokémon: '${pokemon}'`
+    let pokemonInputType = isNumeric(pokemon) ? `Pokémon ID: ${pokemon}` : `Pokémon: '${capitaliseWords(pokemon)}'`
 
     updateLoaderText(`Retrieving Basic Pokémon Information for ${pokemonInputType}`);
 
@@ -179,12 +174,35 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
         if (!response.ok) throw new Error(`Error fetching Pokémon data: Pokémon not found. PokéAPI Reponse Code: ${response.status}`);
         let data = await response.json();
 
-        // Get species data
+        // Update PokemonId and declare species data
+        pokemonId = data.id;
+        let speciesData = {};
 
-        const speciesResponse = await fetch(`${data.species.url}`, { signal });
-        if (!speciesResponse.ok) throw new Error(`Error fetching Pokémon Species data: Data not found. PokéAPI Reponse Code: ${response.status}`);
-        const speciesData = await speciesResponse.json()
-        data = Object.assign({}, data, speciesData);
+
+        // Get species data
+        // Usually can use the pokemon ID to get the species data.
+        // However, some IDs are different to the species ID (e.g. GMAX, Starter etc)
+        // So initially try to load it based on current ID, and if that fails, fallback to provided URI
+        try {
+            updateLoaderText(`Retrieving Species Data for ${pokemonInputType}`);
+            let speciesResponse = await fetch(`${POKEAPI.SPECIES}/${pokemonId}`, { signal });
+            if (!speciesResponse.ok) throw new Error(`Error fetching Pokémon Species data for ${pokemonInputType} (ID: ${pokemonId}): Data not found. PokéAPI Reponse Code: ${speciesResponse.status}`);
+            speciesData = await speciesResponse.json()
+        }
+        catch (error) {
+            console.warn(error);
+            updateLoaderText(`Retrieving Species Data for ${pokemonInputType}`);
+            let speciesResponse = await fetch(`${data.species.url}`, { signal });
+            if (!speciesResponse.ok) throw new Error(`Error fetching Pokémon Species data for ${pokemonInputType} (ID: ${pokemonId}): Data not found. PokéAPI Reponse Code: ${speciesResponse.status}`);
+            speciesData = await speciesResponse.json()
+            console.info(`Used base pokemon ID ${data.species.url} to retrieve base species detail`);
+        }
+
+        // We assign speciesData first and then override with the specific data from the pokémon
+        // This allows the pokemon specific data overrides the species data
+        // This is preferable because otherwise variant pokemon will have the species info
+        // which doesn't make sense
+        data = Object.assign({}, speciesData, data);
 
         try {
             localStorage.setItem(localStorageKey, JSON.stringify(data))

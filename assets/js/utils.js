@@ -15,7 +15,7 @@ export function capitaliseWords(words) {
 
     return words
         .split(/(\s+|-)/)
-        .map((word, index, arr) => {
+        .map((word, index) => {
             if (index % 2 === 0 && word.length > 0) {
                 return word.charAt(0).toUpperCase() + word.slice(1);
             }
@@ -134,7 +134,7 @@ export function hideLoader(loaderDivId = LOADER.DIV_ID, loaderTextDivId = LOADER
  * @returns {string} - The input string with the search term highlighted.
  */
 export function highlightMatch(inputString, searchTerm, highlightClass = "highlight") {
-    if (!searchTerm) return text;
+    if (!searchTerm) return inputString;
 
     const regex = new RegExp(searchTerm, 'gi');
     return inputString.replace(regex, `<span class="${highlightClass}">$&</span>`);
@@ -204,7 +204,8 @@ export function getLocalStorageSize() {
     let totalSize = 0;
 
     for (let key in localStorage) {
-        if (localStorage.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(localStorage,key))
+         {
             let value = localStorage.getItem(key);
 
             // Calculate size: key length + value length (using UTF-16 characters)
@@ -306,8 +307,7 @@ export function convertHeight(height) {
  */
 export function extractGenerationNumber(generationName) {
     if (!generationName.startsWith("generation-")) {
-        throw new Error("Invalid generation name format.");
-        return
+        throw new Error("Invalid generation name format.");        
     }
     const romanNumeral = generationName.replace("generation-", "").toUpperCase();
     return `Generation ${romanNumeral}`;
