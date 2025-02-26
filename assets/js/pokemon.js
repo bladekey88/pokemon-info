@@ -320,8 +320,6 @@ async function getPokemonFormsVarieties(pokemonData, signal = controllerSignal) 
     }
 }
 
-
-
 export async function renderPokemonDataOutput(pokemonData) {
 
     // 0. DEBUG
@@ -404,7 +402,12 @@ export async function renderPokemonDataOutput(pokemonData) {
             title: 'Variants',
             data: pokemonData.extra_varieties,
             display: displayVarietyDetails,
-        }
+        },
+        {
+            title: 'Sprites',
+            data: pokemonData.sprites,
+            display: displaySpriteDetails,
+        },
     ];
 
 
@@ -526,7 +529,10 @@ export async function renderPokemonDataOutput(pokemonData) {
         const dataDiv = createDataItemDiv(title, true);
         for (const cry in cries) {
             if (cries[cry]) {
-                const criesDiv = createEntityItem(cry);
+                const criesDiv = createEntityItem(cry, "Unsupported on iOS Devices");
+                criesDiv.style.display = "flex";
+                criesDiv.style.flexDirection = "column";
+                criesDiv.style.alignItems = "center";
                 const criesAudio = document.createElement('audio');
                 criesAudio.setAttribute('controls', true);
                 criesAudio.setAttribute('crossorigin', 'anonymous');
@@ -597,12 +603,19 @@ export async function renderPokemonDataOutput(pokemonData) {
         const numberOfForms = Object.keys(forms).length;
         const formCountDiv = createEntityItem("Number of Forms", numberOfForms);
         dataDiv.append(formCountDiv);
-        console.log(forms);
-        if (numberOfForms > 1) {
-            for (let [key, value] of Object.entries(forms)) {
-                const formDiv = createEntityItem((capitaliseWords(replaceHyphens(key))), value.is_default == true ? "Default Form" : "Not Default");
-                dataDiv.appendChild(formDiv);
+        for (let [key, value] of Object.entries(forms)) {
+            const formDiv = createEntityItem((capitaliseWords(replaceHyphens(key))), value.is_default == true ? "Default Form" : "Not Default");
+
+            const formAspectsDiv = createEntityItem("Form Aspects");
+            // Form Aspects            
+            for (let [k, v] of Object.entries(value)) {
+                if (formatDetailValue(k, v)) {
+                    let paragraphData = createParagraphElement(`${capitaliseWords(k.replaceAll("_", " "))}: ${capitaliseWords(formatDetailValue(k, v))}`);
+                    formAspectsDiv.appendChild(paragraphData);
+                }
             }
+            formDiv.appendChild(formAspectsDiv);
+            dataDiv.appendChild(formDiv);
         }
         gridDiv.append(dataDiv);
     }
@@ -618,11 +631,62 @@ export async function renderPokemonDataOutput(pokemonData) {
         gridDiv.append(dataDiv);
     }
 
+
+    /**
+    * Creates or reuses a dataDiv to display sprite details. Function is used recursively
+       *
+       * If dataDiv is not provided, it creates a new dataDiv with an appropriate title.
+       * The title is determined based on the presence and value of parentKey.
+       *
+       * @param {string} title - The base title for the sprite display.
+       * @param {object} sprites - An object containing sprite data.
+       * @param {string|null} parentKey - An optional key indicating the parent context of the sprites.
+       * @param {HTMLElement|null} dataDiv - An optional existing dataDiv to reuse.
+       * @returns {HTMLElement} - The dataDiv used for displaying sprite details.
+    */
+    function displaySpriteDetails(title, sprites, parentKey = null, dataDiv = null) {
+        if (!parentKey) {
+            dataDiv = createDataItemDiv(`Current ${title}`, true, `standard${title}`);
+        }
+        else if (parentKey.includes('other') || parentKey.includes('versions')) {
+            dataDiv = createDataItemDiv(capitaliseWords(title) + " Sprites", true, `${title}Sprites`);
+        }
+
+        for (const key in sprites) {
+            const spriteDiv = createEntityItem(
+                capitaliseWords(replaceHyphens(title.replaceAll("_", " "))),
+                capitaliseWords(replaceHyphens(key.replaceAll("_", " ")))
+            );
+            // Check if sprites has the appropriate key
+            if (Object.prototype.hasOwnProperty.call(sprites, key)) {
+                const spriteImage = sprites[key];
+
+                if (spriteImage && typeof (spriteImage) === 'string') {
+                    // This should be an URL which we can then embed
+                    const img = document.createElement('img');
+                    img.width = 96;
+                    img.height = 96;
+                    img.src = spriteImage;
+                    img.alt = `${parentKey ? parentKey + ' ' : ''}${capitaliseWords(replaceHyphens(key.replaceAll("_", " ")))} sprite`;
+                    spriteDiv.appendChild(img);
+                    dataDiv.appendChild(spriteDiv);
+                }
+                else if (typeof spriteImage === 'object' && spriteImage !== null) {
+                    displaySpriteDetails(key, spriteImage, key, dataDiv);
+                }
+            }
+        }
+
+        // Append to gridDiv only once per top-level call (parentKey === null or first call)
+        if (!parentKey && gridDiv) gridDiv.appendChild(dataDiv);
+        else if (parentKey && (parentKey.includes("other") || parentKey.includes("versions")) && gridDiv) gridDiv.appendChild(dataDiv);
+    }
+
     // Utility Functions (Scoped to this function)
-    function createDataItemDiv(title, createTitle = false) {
+    function createDataItemDiv(title, createTitle = false, id = null) {
         const dataDiv = document.createElement('div');
         dataDiv.classList = 'pokemon-data-item';
-        dataDiv.id = title.toLowerCase();
+        dataDiv.id = id ? id : title.toLowerCase();
         if (createTitle) {
             let heading = document.createElement('h3');
             heading.textContent = title;
@@ -631,9 +695,15 @@ export async function renderPokemonDataOutput(pokemonData) {
         return dataDiv;
     }
 
+    function createParagraphElement(inputText) {
+        const paragraphElement = document.createElement('p');
+        paragraphElement.textContent = inputText;
+        return paragraphElement;
+    }
+
     function formatBasicDetailValue(item, value) {
         if (value === undefined || value === null) return "N/A";
-        if (item === "name") return capitaliseWords(value, false);
+        if (item === "name") return capitaliseWords(value);
         if (item === "weight") return `${convertWeight(value)} kg`;
         if (item === "height") return `${convertHeight(value)} m`;
         if (item === "is_default") return value ? "Default" : "Not Default";
@@ -645,6 +715,22 @@ export async function renderPokemonDataOutput(pokemonData) {
             Genearation VIII, IX: ${value * 128} Steps`
         );
         return capitaliseWords(String(value), false);
+    }
+
+    function formatDetailValue(item, value) {
+        if (value === undefined || value === null) return "N/A";
+        if (item === "is_battle_only") return capitaliseWords(value.toString());
+        if (item === "is_mega") return capitaliseWords(value.toString());
+        if (item === "version_group") return capitaliseWords(replaceHyphens(value.name));
+        if (item === "types") {
+            const formTypes = [];
+            for (const formType of value) {
+                formTypes.push(`${capitaliseWords(formType.type.name)}`);
+            }
+
+            return formTypes.join(", ");
+        }
+
     }
 
     function createEntityItem(name, value = "", headingLevel = "h3") {

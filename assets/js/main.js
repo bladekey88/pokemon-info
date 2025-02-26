@@ -1,6 +1,6 @@
 // main.js
 import { getBasicPokemonInfo, renderPokemonDataOutput, pokemon, enableSearchSuggestion } from './pokemon.js';
-import { capitaliseWords, showLoader, hideLoader,displayError } from './utils.js';
+import { capitaliseWords, showLoader, hideLoader, displayError } from './utils.js';
 
 
 
@@ -44,10 +44,10 @@ document.getElementById("search-form").addEventListener("submit", (event) => {
     event.preventDefault();
 
     // Clear the search suggestions
-    if(document.getElementById('suggestions')) document.getElementById('suggestions').classList.remove('show');
-    
+    if (document.getElementById('suggestions')) document.getElementById('suggestions').classList.remove('show');
+
     // Clear the error Div
-    if(document.getElementById('error')) document.getElementById('error').remove();
+    if (document.getElementById('error')) document.getElementById('error').remove();
 
     const pokemonName = document.getElementById("pokemon-input").value.toLowerCase();
 
@@ -68,4 +68,3 @@ document.getElementById("search-form").addEventListener("submit", (event) => {
         displayError("Please enter a Pokémon name!");
     }
 });
-
