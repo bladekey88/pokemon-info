@@ -117,10 +117,22 @@ export async function enableSearchSuggestion() {
                     suggestionsDiv.appendChild(suggestionElement);
                 });
                 suggestionsDiv.classList.add('show');
+
+                // Check for single matching suggestion here
+                // So that the suggestion div can be removed
+                if (suggestionsDiv.childElementCount === 1) {
+                    const firstSuggestion = suggestionsDiv.firstChild;
+                    if (normaliseString(firstSuggestion.textContent.toLowerCase().trim()) === searchTerm) {
+                        suggestionsDiv.classList.remove('show');
+                        searchInput.value = firstSuggestion.textContent;
+                    }
+                }
             } else {
+                // No matches so hide suggestions
                 suggestionsDiv.classList.remove('show');
             }
         } else {
+            // Invalid or no input data so hide suggestions
             suggestionsDiv.classList.remove('show');
         }
     };
@@ -585,6 +597,7 @@ export async function renderPokemonDataOutput(pokemonData) {
         const numberOfForms = Object.keys(forms).length;
         const formCountDiv = createEntityItem("Number of Forms", numberOfForms);
         dataDiv.append(formCountDiv);
+        console.log(forms);
         if (numberOfForms > 1) {
             for (let [key, value] of Object.entries(forms)) {
                 const formDiv = createEntityItem((capitaliseWords(replaceHyphens(key))), value.is_default == true ? "Default Form" : "Not Default");
