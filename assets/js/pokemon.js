@@ -13,6 +13,7 @@ import {
     convertWeight,
     extractGenerationNumber,
     replaceHyphens
+
 } from './utils.js';
 
 // Top Level Variables
@@ -53,7 +54,7 @@ export async function enableSearchSuggestion() {
     try {
         const response = await fetch("./" + jsonFile);
         jsonData = await (response.json());
-       
+
     }
     catch (error) {
         console.error(error);
@@ -164,7 +165,7 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
 
     updateLoaderText(`Retrieving Basic Pokémon Information for ${pokemonInputType}`);
 
-    // Get from LocalStorage first and return early
+    // Get from LocalStorage first and return early 
     let storedData = checkLocalStorage(localStorageKey);
     if (storedData) return storedData;
 
@@ -177,7 +178,6 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
         // Update PokemonId and declare species data
         pokemonId = data.id;
         let speciesData = {};
-
 
         // Get species data
         // Usually can use the pokemon ID to get the species data.
@@ -204,12 +204,20 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
         // which doesn't make sense
         data = Object.assign({}, speciesData, data);
 
+        // Now get supplementary form and variety data
+        // Get form and variety data
+        const formData = await getPokemonFormsVarieties(data);
+        data = Object.assign({}, formData, data);
+
+        // Save to local storage (clear it if necessary)
         try {
             localStorage.setItem(localStorageKey, JSON.stringify(data));
         } catch (e) {
             if (e.name == "QuotaExceededError") {
-                console.warn("Local Storage Quota Exceeded. Data will not be stored in Local Storage");
-                console.warn("Recommended to clear Local Storage");
+                console.warn("Local Storage Quota Exceeded. Local Storage will be cleared");
+                localStorage.clear();
+                console.warn("Local Storage has been cleared");
+                localStorage.setItem(localStorageKey, JSON.stringify(data));
             }
         }
         return data;
@@ -226,10 +234,86 @@ export async function getBasicPokemonInfo(pokemon, signal = controllerSignal) {
     }
 }
 
+async function getPokemonFormsVarieties(pokemonData, signal = controllerSignal) {
+    if (!pokemonData || !pokemonData.varieties) return;
+
+    // Get Variation Data
+    const { varieties } = pokemonData;
+    const varietyCount = varieties.length;
+
+    // Get Form Data
+    updateLoaderText("Retrieving Pokémon Form Data");
+    let pokemonForms = {};
+    const formDescription = pokemonData.form_descriptions;
+    let formCount = 0;
+
+    try {
+        pokemonForms = await getPokemonFormData(pokemonData, signal);
+    }
+    catch (error) {
+        console.error("Error retrieving Pokémon form data:", error);
+        return {
+            extra_forms: {},
+            extra_description: {},
+            extra_varieties: {
+                variations: varieties,
+                count: varietyCount
+            },
+            error: error.message || "Failed to retrieve form data."
+        };
+    }
+    return {
+        extra_forms: pokemonForms,
+        extra_description: formDescription,
+        extra_varieties: {
+            variations: varieties,
+            count: varietyCount
+        }
+    };
+
+    async function getPokemonFormData(pokemonInfo, signal) {
+        const fetchedForms = {};
+        const errors = {};
+
+        // Iterate over form Object
+        for (const form of pokemonInfo.forms) {
+            try {
+                const response = await fetch(form.url, { signal });
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch ${form.url}: ${response.status} ${response.statusText}`);
+                }
+                const formData = await response.json();
+                fetchedForms[form.name] = formData;
+
+                // Update User on progress
+                formCount++;
+                let formCountText = formCount == 1 ? "Form" : "Forms";
+                updateLoaderText(`Retrieving Pokémon Form Data - Retrieved ${formCount} ${formCountText}.`);
+
+            } catch (error) {
+                if (signal.aborted) {
+                    console.warn("Fetch aborted:", error);
+                    return fetchedForms;
+                } else {
+                    console.error("Error fetching form data:", error);
+                    errors[form.name] = error.message;
+                }
+            }
+        }
+        if (Object.keys(errors).length > 0) {
+            return { fetchedForms, errors }; // Return fetched data and errors
+        } else {
+            return fetchedForms; // Return fetched data
+        }
+    }
+}
+
+
+
 export async function renderPokemonDataOutput(pokemonData) {
 
     // 0. DEBUG
-    console.log(pokemonData);
+    console.debug(pokemonData);
 
     // 1. Check for Grid div. If it doesn't exist abort.
     const gridDiv = document.querySelector('.grid-auto-fill');
@@ -249,7 +333,7 @@ export async function renderPokemonDataOutput(pokemonData) {
                 'has_gender_differences', 'hatch_counter'],
             display: displayBasicDetails,
         },
-         {
+        {
             title: 'Colour',
             data: pokemonData.color,
             display: displayColourDetails,
@@ -273,7 +357,7 @@ export async function renderPokemonDataOutput(pokemonData) {
             title: 'Abilities',
             data: pokemonData.abilities,
             display: displayAbilityDetails,
-        },       
+        },
         {
             title: 'Cries',
             data: pokemonData.cries,
@@ -281,19 +365,34 @@ export async function renderPokemonDataOutput(pokemonData) {
         },
         {
             title: 'Egg Group',
-            data: pokemonData.  egg_groups,
+            data: pokemonData.egg_groups,
             display: displayEggGroupDetails,
         },
         {
             title: 'Held Items',
             data: pokemonData.held_items,
             display: displayHeldItemDetails,
-        },   
-         {
+        },
+        {
             title: 'Base Stats',
             data: pokemonData.stats,
             display: displayStatsDetails,
-        },    
+        },
+        {
+            title: 'Pokédex Number',
+            data: pokemonData.pokedex_numbers,
+            display: displayPokedexDetails,
+        },
+        {
+            title: 'Forms',
+            data: pokemonData.extra_forms,
+            display: displayFormDetails,
+        },
+        {
+            title: 'Variants',
+            data: pokemonData.extra_varieties,
+            display: displayVarietyDetails,
+        }
     ];
 
 
@@ -428,7 +527,7 @@ export async function renderPokemonDataOutput(pokemonData) {
     }
 
     function displayHeldItemDetails(title, items) {
-        const dataDiv = createDataItemDiv(title,true);
+        const dataDiv = createDataItemDiv(title, true);
         items.forEach((item) => {
             const rarity = item.version_details[item.version_details.length - 1].rarity;
             const itemDiv = createEntityItem(capitaliseWords(replaceHyphens(item.item.name)), `${String(rarity)}% Chance`);
@@ -439,38 +538,71 @@ export async function renderPokemonDataOutput(pokemonData) {
     }
 
     // Colour seems to only have one value, so we can grab it and display it flat
-    function displayColourDetails(title,items) {
+    function displayColourDetails(title, items) {
         const dataDiv = createDataItemDiv(title);
-        const colourDiv = createEntityItem(title,capitaliseWords(items.name));
+        const colourDiv = createEntityItem(title, capitaliseWords(items.name));
         dataDiv.appendChild(colourDiv);
-        gridDiv.appendChild(dataDiv);        
-    }
-     
-    function displaySpeciesDetails(title,items) {
-        const dataDiv = createDataItemDiv(title);
-        const generationDiv = createEntityItem(title,capitaliseWords(items.name));
-        dataDiv.appendChild(generationDiv);
-        gridDiv.appendChild(dataDiv);        
-    }
-    
-    function displayGenerationDetails(title,items) {
-        const dataDiv = createDataItemDiv(title);
-        const generationDiv = createEntityItem(title,capitaliseWords(extractGenerationNumber(items.name)));
-        dataDiv.appendChild(generationDiv);
-        gridDiv.appendChild(dataDiv);        
+        gridDiv.appendChild(dataDiv);
     }
 
-     function displayEggGroupDetails(title,eggGroups) {        
-        const dataDiv = createDataItemDiv(title,true);
+    function displaySpeciesDetails(title, items) {
+        const dataDiv = createDataItemDiv(title);
+        const generationDiv = createEntityItem(title, capitaliseWords(items.name));
+        dataDiv.appendChild(generationDiv);
+        gridDiv.appendChild(dataDiv);
+    }
+
+    function displayGenerationDetails(title, items) {
+        const dataDiv = createDataItemDiv(title);
+        const generationDiv = createEntityItem(title, capitaliseWords(extractGenerationNumber(items.name)));
+        dataDiv.appendChild(generationDiv);
+        gridDiv.appendChild(dataDiv);
+    }
+
+    function displayEggGroupDetails(title, eggGroups) {
+        const dataDiv = createDataItemDiv(title, true);
         let counter = 0;
         for (const eggGroup of eggGroups) {
             counter++;
-              const eggGroupDiv = createEntityItem(`${title} ${counter}`, capitaliseWords(eggGroup.name));
-              dataDiv.appendChild(eggGroupDiv);
+            const eggGroupDiv = createEntityItem(`${title} ${counter}`, capitaliseWords(eggGroup.name));
+            dataDiv.appendChild(eggGroupDiv);
         }
-        // const generationDiv = createEntityItem(title,capitaliseWords(extractGenerationNumber(items.name)));
-        // dataDiv.appendChild(generationDiv);
-        gridDiv.appendChild(dataDiv);        
+        gridDiv.appendChild(dataDiv);
+    }
+
+    function displayPokedexDetails(title, pokedexNumbers) {
+        const dataDiv = createDataItemDiv(title, true);
+        for (const pokedexNumber of pokedexNumbers) {
+            const pokedexNumberPadded = '#' + pokedexNumber.entry_number.toString().padStart(4, 0);
+            const pokedexDiv = createEntityItem(capitaliseWords(replaceHyphens(pokedexNumber.pokedex.name)), pokedexNumberPadded);
+            dataDiv.appendChild(pokedexDiv);
+        }
+        gridDiv.appendChild(dataDiv);
+    }
+
+    function displayFormDetails(title, forms) {
+        const dataDiv = createDataItemDiv(title, true);
+        const numberOfForms = Object.keys(forms).length;
+        const formCountDiv = createEntityItem("Number of Forms", numberOfForms);
+        dataDiv.append(formCountDiv);
+        if (numberOfForms > 1) {
+            for (let [key, value] of Object.entries(forms)) {
+                const formDiv = createEntityItem((capitaliseWords(replaceHyphens(key))), value.is_default == true ? "Default Form" : "Not Default");
+                dataDiv.appendChild(formDiv);
+            }
+        }
+        gridDiv.append(dataDiv);
+    }
+
+    function displayVarietyDetails(title, varieties) {
+        const dataDiv = createDataItemDiv(title, true);
+        const varietyCountDiv = createEntityItem("Variations of the Species", varieties.count);
+        dataDiv.append(varietyCountDiv);
+        for (const variant of varieties.variations) {
+            const variantInfoDiv = createEntityItem(capitaliseWords(replaceHyphens(variant.pokemon.name)), variant.is_default === true ? "Default Variant" : "Not Default");
+            dataDiv.appendChild(variantInfoDiv);
+        }
+        gridDiv.append(dataDiv);
     }
 
     // Utility Functions (Scoped to this function)
@@ -492,7 +624,7 @@ export async function renderPokemonDataOutput(pokemonData) {
         if (item === "weight") return `${convertWeight(value)} kg`;
         if (item === "height") return `${convertHeight(value)} m`;
         if (item === "is_default") return value ? "Default" : "Not Default";
-        if (item === "gender_rate") return value === -1 ? "Gender Unknown": `${(1 - value / 8) * 100}% Male : ${(value / 8) * 100}% Female`;
+        if (item === "gender_rate") return value === -1 ? "Gender Unknown" : `${(1 - value / 8) * 100}% Male : ${(value / 8) * 100}% Female`;
         if (item === "hatch_counter") return (
             `Generation II, III, and VII: ${value * 256} Steps,
             Generation IV, Brilliant Diamond, Shining Pearl: ${value * 255} Steps,

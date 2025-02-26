@@ -35,11 +35,10 @@ async function loadPokemonData(pokemonNameOrId) {
 }
 
 
-enableSearchSuggestion();
-
 // hide form
 document.getElementById('statForm').style.display = "none";
 
+enableSearchSuggestion();
 
 document.getElementById("search-form").addEventListener("submit", (event) => {
     event.preventDefault();
