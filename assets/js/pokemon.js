@@ -344,6 +344,11 @@ export async function renderPokemonDataOutput(pokemonData) {
             display: displayBasicDetails,
         },
         {
+            title: 'Name (Localised)',
+            data: pokemonData.names,
+            display: displayNamesDetails,
+        },
+        {
             title: 'Colour',
             data: pokemonData.color,
             display: displayColourDetails,
@@ -352,6 +357,11 @@ export async function renderPokemonDataOutput(pokemonData) {
             title: 'Species',
             data: pokemonData.species,
             display: displaySpeciesDetails,
+        },
+        {
+            title: 'Genus',
+            data: pokemonData.genera,
+            display: displayGeneraDetails,
         },
         {
             title: 'Generation Species Introduced',
@@ -374,9 +384,19 @@ export async function renderPokemonDataOutput(pokemonData) {
             display: displayCriesDetails,
         },
         {
+            title: 'Growth Rate',
+            data: pokemonData.growth_rate,
+            display: displayGrowthDetails,
+        },
+        {
             title: 'Egg Group',
             data: pokemonData.egg_groups,
             display: displayEggGroupDetails,
+        },
+        {
+            title: 'Habitat',
+            data: pokemonData.habitat,
+            display: displayHabitatDetails,
         },
         {
             title: 'Held Items',
@@ -681,6 +701,48 @@ export async function renderPokemonDataOutput(pokemonData) {
         if (!parentKey && gridDiv) gridDiv.appendChild(dataDiv);
         else if (parentKey && (parentKey.includes("other") || parentKey.includes("versions")) && gridDiv) gridDiv.appendChild(dataDiv);
     }
+
+    function displayGeneraDetails(title, genera) {
+        const dataDiv = createDataItemDiv(title);
+        for (const genus of genera) {
+            if (genus.language.name == "en") {
+                const genusDiv = createEntityItem(title, genus.genus);
+                dataDiv.appendChild(genusDiv);
+            }
+        }
+        gridDiv.appendChild(dataDiv);
+    }
+
+    function displayHabitatDetails(title, habitat) {
+        const dataDiv = createDataItemDiv(title);
+        const habitatDiv = createEntityItem(title, capitaliseWords(replaceHyphens(habitat.name)));
+        dataDiv.appendChild(habitatDiv);
+        gridDiv.appendChild(dataDiv);
+    }
+
+    function displayGrowthDetails(title, growth) {
+        const dataDiv = createDataItemDiv(title);
+        const growthRateDiv = createEntityItem(title, capitaliseWords(replaceHyphens(growth.name)));
+        const growthRateLink = document.createElement('a');
+        growthRateLink.href = `https://bulbapedia.bulbagarden.net/wiki/Experience#${capitaliseWords(growth.name)}`;
+        growthRateLink.target = "_blank";
+        growthRateLink.textContent = "View Bulbapedia Link Explanation";
+        growthRateDiv.appendChild(growthRateLink);
+        dataDiv.appendChild(growthRateDiv);
+        gridDiv.appendChild(dataDiv);
+    }
+
+    function displayNamesDetails(title, names) {
+        const dataDiv = createDataItemDiv(title);
+        for (const name of names) {
+            if (name.language.name === "en") {
+                const nameDiv = createEntityItem(title, name.name,);
+                dataDiv.appendChild(nameDiv);
+            }
+        }
+        gridDiv.appendChild(dataDiv);
+    }
+
 
     // Utility Functions (Scoped to this function)
     function createDataItemDiv(title, createTitle = false, id = null) {
