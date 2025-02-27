@@ -16,6 +16,8 @@ async function loadPokemonData(pokemonNameOrId) {
         // Render the Data
         renderPokemonDataOutput(pokemonData);
         document.getElementById('statForm').style.display = "block";
+        const statTable = document.querySelector(".container table");
+        statTable.style.display = "table";
 
         // HARDCODE need to change later
         pokemonData.stats.forEach(element => {
@@ -37,6 +39,10 @@ async function loadPokemonData(pokemonNameOrId) {
 
 // hide form
 document.getElementById('statForm').style.display = "none";
+const statTable = document.querySelector(".container table");
+statTable.style.display = "none";
+
+
 
 enableSearchSuggestion();
 
