@@ -413,6 +413,8 @@ td {
 table th {
     background-color: #f8ddb8;
     position: sticky;
+    font-size: clamp(0.1rem, -0.7rem + 4.333vw, 1rem);
+
 }
 
 table tr:nth-child(even) {
