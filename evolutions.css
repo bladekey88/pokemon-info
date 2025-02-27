@@ -106,7 +106,7 @@ li {
     border: 1px solid lightgray;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    max-width: 60%;
+    max-width: 80%;
     width: 100%;
     text-align: center;
     margin-block: auto;
@@ -400,6 +400,7 @@ table {
     margin-block-end: 1.25rem;
     outline: solid rgb(158, 158, 158) 1px;
     border-radius: 0.25rem;
+    table-layout: fixed;
 }
 
 th,
