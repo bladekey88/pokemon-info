@@ -5,3 +5,5 @@ node_modules
 node_modules/*
 eslint.config.mjs
 zz_*
+img
+img/*

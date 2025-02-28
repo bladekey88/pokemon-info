@@ -1,0 +1,52 @@
+<style>
+    body {
+        background-color: #edf2fa;
+    }
+
+    .outer-grid {
+        background-color: white;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0;
+    }
+
+    .inner-grid {
+        display: grid;
+        grid-template-columns: max-content 1fr;
+        gap: 5px;
+        padding: 5px;
+        /* border: 1px solid #ddd; */
+    }
+
+    .inner-grid>* {
+        border-block: solid 1px #aaa;
+        align-content: center;
+    }
+
+    .inner-grid>div:first-child {
+        white-space: wrap;
+        max-width: 200px;
+        width: 200px;
+        text-align: end;
+        font-weight: bolder;
+    }
+
+    .grid-auto-fill {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr));
+        gap: rem;
+        margin-block-start: 1rem;
+        margin-inline: auto;
+        width: 90%;
+        text-align: center;
+        align-items: center;
+        grid-auto-rows: min-content;
+        background-color: white;
+    }
+</style>
+
+<div class="outer-grid grid-auto-fill">
+</div>
+
+
+<script type="module" src="assets/js/main.js"></script>
